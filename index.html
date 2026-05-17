@@ -417,9 +417,16 @@ function driveThumb(fId,sz='w200'){
 function driveView(fId){
   return fId?`https://drive.google.com/uc?export=view&id=${fId}`:null;
 }
-// Lấy fileId từ chuỗi "drive:FILEID" lưu trong sheet
+// Lấy fileId từ URL Drive (hỗ trợ cả format cũ "drive:FILEID" lẫn URL đầy đủ)
 function getFileId(imageUrl){
-  return(imageUrl&&imageUrl.startsWith('drive:'))?imageUrl.slice(6):null;
+  if(!imageUrl)return null;
+  if(imageUrl.startsWith('drive:'))return imageUrl.slice(6); // format cũ
+  const m=imageUrl.match(/\/d\/([^\/\?]+)/);                 // URL đầy đủ
+  return m?m[1]:null;
+}
+// Tạo URL đầy đủ để lưu vào sheet (clickable trong Google Sheet)
+function driveFullUrl(fId){
+  return fId?`https://drive.google.com/file/d/${fId}/view`:null;
 }
 
 // Chuẩn hóa date string về yyyy-MM-dd (fix dashboard bug)
@@ -595,9 +602,9 @@ async function submitCost(){
   // Xác định imageUrl lưu vào sheet
   let imageUrl='';
   if(pendingFileId){
-    imageUrl='drive:'+pendingFileId;          // ảnh mới vừa upload
+    imageUrl=driveFullUrl(pendingFileId);          // ảnh mới – lưu URL đầy đủ
   }else if(isEdit&&currentEditFileId&&!pendingClearImage){
-    imageUrl='drive:'+currentEditFileId;      // giữ ảnh cũ
+    imageUrl=driveFullUrl(currentEditFileId);      // giữ ảnh cũ
   }
   const costData={
     date,supplier:$('cSupplier').value.trim(),product:$('cProduct').value.trim(),
