@@ -276,17 +276,17 @@ tr.trow:hover td{background:#b8d9a6}
       <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="fg">
           <label>Ảnh hoá đơn <span style="font-weight:400;color:#aaa">(lưu Google Drive)</span></label>
-          <div class="img-upload-area" onclick="$('cImageFile').click()">
+          <label for="cImageFile" class="img-upload-area">
             <div id="cImgDropContent">
               <i class="ti ti-camera" style="font-size:24px;color:var(--cm)"></i>
               <div style="font-size:12px;color:var(--cm);margin-top:4px">Chụp / chọn ảnh hoá đơn</div>
             </div>
             <div id="cImgPreview" style="display:none">
               <img id="cImgEl" src="" style="max-height:110px;max-width:100%;border-radius:6px">
-              <button onclick="event.stopPropagation();clearCostImage()" style="display:block;margin:4px auto 0;font-size:11px;background:none;border:none;color:#C00000;cursor:pointer"><i class="ti ti-x"></i> Xóa ảnh</button>
+              <button type="button" onclick="event.preventDefault();event.stopPropagation();clearCostImage()" style="display:block;margin:4px auto 0;font-size:11px;background:none;border:none;color:#C00000;cursor:pointer"><i class="ti ti-x"></i> Xóa ảnh</button>
             </div>
             <input type="file" id="cImageFile" accept="image/*" style="display:none" onchange="onImageSelected(this)">
-          </div>
+          </label>
         </div>
         <div class="fg"><label>Ghi chú</label><textarea id="cNote" placeholder="Ghi chú thêm..." style="height:100px"></textarea></div>
       </div>
