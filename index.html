@@ -116,7 +116,7 @@ tr.trow:hover td{background:#b8d9a6}
 <div id="pwModal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <h3><i class="ti ti-lock"></i> Xác nhận mật khẩu</h3>
-    <p>Hành động này yêu cầu mật khẩu quản trị</p>
+    <p id="pwDesc">Hành động này yêu cầu mật khẩu</p>
     <input type="password" id="pwInput" placeholder="Nhập mật khẩu..." autocapitalize="none" autocorrect="off" autocomplete="off" onkeydown="if(event.key==='Enter')pwConfirm()">
     <div class="modal-btns">
       <button class="m-cancel" onclick="pwCancel()">Hủy</button>
@@ -395,8 +395,8 @@ let pendingFileId=null;      // Drive fileId ảnh mới đang chờ lưu
 let pendingClearImage=false; // user muốn xoá ảnh
 let currentEditFileId=null;  // Drive fileId ảnh hiện tại khi đang edit
 
-// ── Auth / dash ──
-let pwCallback=null,authed=false;
+// ── Auth – 2 cấp: admin (sửa/xoá đơn) | boss (chi phí/dashboard/báo cáo/excel) ──
+let pwCallback=null,pwLevel=null,authedAdmin=false,authedBoss=false;
 let dashY=new Date().getFullYear(),dashM=new Date().getMonth()+1,dashChart=null;
 let reportData=[],currentTab='orders';
 
@@ -442,6 +442,9 @@ function normDate(s){
 
 /* ══ TABS ══ */
 function showTab(t){
+  if(['costs','dashboard','report'].includes(t)&&!authedBoss){
+    requireAuth('boss',()=>showTab(t));return;
+  }
   currentTab=t;
   ['orders','dashboard','report','costs'].forEach(id=>{$('tab-'+id).style.display=id===t?'':'none';$('tab-'+id+'-btn').classList.toggle('active',id===t);});
   if(t==='dashboard')loadDash();if(t==='report')initReport();if(t==='costs')renderCosts();
@@ -449,11 +452,26 @@ function showTab(t){
 function refreshCurrentTab(){if(currentTab==='orders')render();else if(currentTab==='costs')renderCosts();else if(currentTab==='dashboard')loadDash();}
 
 /* ══ AUTH ══ */
-function requireAuth(cb){if(authed){cb();return;}requirePw(cb);}
-function requirePw(cb){pwCallback=cb;$('pwInput').value='';$('pwInput').classList.remove('pw-err');$('pwModal').style.display='flex';setTimeout(()=>$('pwInput').focus(),80);}
+function requireAuth(level,cb){
+  if(level==='admin'&&authedAdmin){cb();return;}
+  if(level==='boss'&&authedBoss){cb();return;}
+  pwLevel=level;pwCallback=cb;
+  $('pwDesc').textContent=level==='admin'?'Nhập mật khẩu để sửa / xoá đơn hàng':'Nhập mật khẩu để truy cập phần này';
+  $('pwInput').value='';$('pwInput').classList.remove('pw-err');
+  $('pwModal').style.display='flex';setTimeout(()=>$('pwInput').focus(),80);
+}
 function pwConfirm(){
-  if($('pwInput').value.trim().toLowerCase()==='admin'){$('pwModal').style.display='none';authed=true;if(pwCallback)pwCallback();pwCallback=null;}
-  else{$('pwInput').classList.add('pw-err');$('pwInput').value='';toast('Mật khẩu không đúng!',true);setTimeout(()=>$('pwInput').classList.remove('pw-err'),1500);$('pwInput').focus();}
+  const val=$('pwInput').value.trim().toLowerCase();
+  const ok=(pwLevel==='admin'&&val==='admin')||(pwLevel==='boss'&&val==='boss');
+  if(ok){
+    $('pwModal').style.display='none';
+    if(pwLevel==='admin')authedAdmin=true;else authedBoss=true;
+    if(pwCallback)pwCallback();pwCallback=null;
+  }else{
+    $('pwInput').classList.add('pw-err');$('pwInput').value='';
+    toast('Mật khẩu không đúng!',true);
+    setTimeout(()=>$('pwInput').classList.remove('pw-err'),1500);$('pwInput').focus();
+  }
 }
 function pwCancel(){$('pwModal').style.display='none';pwCallback=null;}
 
@@ -562,9 +580,9 @@ async function submitOrder(){
   catch(e){toast('⚠️ '+e.message,true);}
   $('btnSub').disabled=false;$('btnTxt').textContent=isEdit?'Cập nhật đơn':'Thêm đơn';updateFormLock();
 }
-function startEdit(id){requireAuth(()=>{const o=currentOrders.find(x=>x.id===id);if(!o)return;setForm(o);editId=id;$('fTitle').textContent='Sửa đơn – '+(o.name||'');$('fIcon').className='ti ti-pencil';$('btnTxt').textContent='Cập nhật đơn';$('btnCancel').style.display='';$('fcard').classList.add('editing');$('pastNotice').style.display='none';$('btnSub').disabled=false;if(!formOpen){formOpen=true;$('fbody').style.display='';$('fchev').style.transform='';}$('fcard').scrollIntoView({behavior:'smooth'});render();});}
+function startEdit(id){requireAuth('admin',()=>{const o=currentOrders.find(x=>x.id===id);if(!o)return;setForm(o);editId=id;$('fTitle').textContent='Sửa đơn – '+(o.name||'');$('fIcon').className='ti ti-pencil';$('btnTxt').textContent='Cập nhật đơn';$('btnCancel').style.display='';$('fcard').classList.add('editing');$('pastNotice').style.display='none';$('btnSub').disabled=false;if(!formOpen){formOpen=true;$('fbody').style.display='';$('fchev').style.transform='';}$('fcard').scrollIntoView({behavior:'smooth'});render();});}
 function cancelEdit(){editId=null;setForm({});$('fTitle').textContent='Thêm đơn hàng mới';$('fIcon').className='ti ti-plus';$('btnTxt').textContent='Thêm đơn';$('btnCancel').style.display='none';$('fcard').classList.remove('editing');updateFormLock();}
-async function delOrder(id){requireAuth(async()=>{if(!confirm('Xóa đơn hàng này?'))return;try{const r=await api({action:'deleteOrder',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);if(editId===id)cancelEdit();await render();toast('Đã xóa đơn.');}catch(e){toast('⚠️ '+e.message,true);}});}
+async function delOrder(id){requireAuth('admin',async()=>{if(!confirm('Xóa đơn hàng này?'))return;try{const r=await api({action:'deleteOrder',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);if(editId===id)cancelEdit();await render();toast('Đã xóa đơn.');}catch(e){toast('⚠️ '+e.message,true);}});}
 $('ftoggle').addEventListener('click',()=>{formOpen=!formOpen;$('fbody').style.display=formOpen?'':'none';$('fchev').style.transform=formOpen?'':'rotate(-90deg)';});
 
 /* ══ RENDER COSTS ══ */
@@ -631,7 +649,7 @@ async function submitCost(){
 }
 
 function startCostEdit(id){
-  requireAuth(()=>{
+  requireAuth('boss',()=>{
     const c=currentCosts.find(x=>x.id===id);if(!c)return;
     $('cSupplier').value=c.supplier||'';$('cProduct').value=c.product||'';
     $('cPrice').value=c.price?c.price/1000:'';$('cAdCost').value=c.adCost?c.adCost/1000:'';$('cNote').value=c.note||'';
@@ -660,7 +678,7 @@ function cancelCostEdit(){
 }
 
 async function delCost(id){
-  requireAuth(async()=>{
+  requireAuth('boss',async()=>{
     if(!confirm('Xóa mục chi phí này?'))return;
     const c=currentCosts.find(x=>x.id===id);
     try{
@@ -691,7 +709,7 @@ $('costtoggle').addEventListener('click',()=>{costFormOpen=!costFormOpen;$('cost
 $('fixedToggle').addEventListener('click',()=>{fixedBodyOpen=!fixedBodyOpen;$('fixedBody').style.display=fixedBodyOpen?'':'none';$('fixedChev').style.transform=fixedBodyOpen?'':'rotate(-90deg)';});
 
 /* ══ EXPORT ORDERS EXCEL ══ */
-function onClickXlsx(){requireAuth(()=>{const t=todayStr();$('xlsxFrom').value=t;$('xlsxTo').value=t;$('xlsxModal').style.display='flex';});}
+function onClickXlsx(){requireAuth('boss',()=>{const t=todayStr();$('xlsxFrom').value=t;$('xlsxTo').value=t;$('xlsxModal').style.display='flex';});}
 async function doExportRange(){
   const from=$('xlsxFrom').value,to=$('xlsxTo').value;
   if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
