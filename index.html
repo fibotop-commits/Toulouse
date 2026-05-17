@@ -285,7 +285,7 @@ tr.trow:hover td{background:#b8d9a6}
               <img id="cImgEl" src="" style="max-height:110px;max-width:100%;border-radius:6px">
               <button onclick="event.stopPropagation();clearCostImage()" style="display:block;margin:4px auto 0;font-size:11px;background:none;border:none;color:#C00000;cursor:pointer"><i class="ti ti-x"></i> Xóa ảnh</button>
             </div>
-            <input type="file" id="cImageFile" accept="image/*" capture="environment" style="display:none" onchange="onImageSelected(this)">
+            <input type="file" id="cImageFile" accept="image/*" style="display:none" onchange="onImageSelected(this)">
           </div>
         </div>
         <div class="fg"><label>Ghi chú</label><textarea id="cNote" placeholder="Ghi chú thêm..." style="height:100px"></textarea></div>
@@ -375,7 +375,7 @@ tr.trow:hover td{background:#b8d9a6}
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxjpG0e3jmW3ZfKLaOACVXGwsPLOSnSBBlFDTol9AlC3ScdzHxOoLaAI8nIhw-u7heByw/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyQnyijNC7jKLgFbEfKURNHkxw4GO7Sfy3HVpIrp2gwB3lSPlR6VtWvYuLnqzB9Gz3g0w/exec';
 
 const $=id=>document.getElementById(id);
 const n=v=>Number(v||0);
@@ -785,9 +785,10 @@ async function buildCostExcel(results,titleLabel,filename){
         cc.font=xn(false,(ci===4||ci===5)?'FFC00000':'FF000000');
         cc.fill=xf('FFFFFFFF');
         cc.alignment={vertical:'middle'};
-        // Cột 7 (Ảnh HĐ) nếu không có ảnh nhưng có link – làm hyperlink
-        if(ci===7&&!imgData&&fId){
-          cc.value={text:'📎 Xem ảnh Drive',hyperlink:v};
+        // Cột 7 (Ảnh HĐ) – luôn làm hyperlink khi có fileId
+        if(ci===7&&fId){
+          const vUrl=`https://drive.google.com/file/d/${fId}/view`;
+          cc.value={text:'📎 Xem ảnh HĐ',hyperlink:vUrl};
           cc.font={color:{argb:'FF0563C1'},underline:true,name:'Arial',size:10};
         }
       });
