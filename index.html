@@ -780,13 +780,21 @@ function renderDash(results,allCosts,fixedResult){
   dashChart=new Chart($('dashChart').getContext('2d'),{type:'bar',data:{labels,datasets:[{label:'Doanh thu',data:revVals,backgroundColor:'rgba(107,122,46,.75)',borderColor:'#6B7A2E',borderWidth:1,borderRadius:3},{label:'Chi phí (NH+QC)',data:costVals,backgroundColor:'rgba(230,126,34,.7)',borderColor:'#E67E22',borderWidth:1,borderRadius:3}]},options:{responsive:true,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Arial',size:11}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>(v/1000000).toFixed(1)+'M',font:{family:'Arial',size:11}},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{font:{family:'Arial',size:11}},grid:{display:false}}}}});
   const dayRows=results.filter(r=>r.orders.length||costsByDate[normDate(r.date)]);
   if(!dayRows.length){$('dashTable').innerHTML='<div class="dash-loading">Không có dữ liệu</div>';return;}
-  const cs='style="white-space:nowrap;overflow:visible;text-overflow:unset"';
-  $('dashTable').innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-  <table class="dash-tbl" style="table-layout:auto;width:auto;min-width:100%">
+  const cs='style="white-space:nowrap;overflow:visible;text-overflow:clip"';
+  $('dashTable').innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%">
+  <table class="dash-tbl" style="width:700px;table-layout:fixed;border-collapse:collapse">
+    <colgroup>
+      <col style="width:90px">
+      <col style="width:55px">
+      <col style="width:130px">
+      <col style="width:115px">
+      <col style="width:115px">
+      <col style="width:145px">
+    </colgroup>
     <thead><tr>
-      <th style="white-space:nowrap">Ngày</th><th style="white-space:nowrap">Số đơn</th>
-      <th style="white-space:nowrap">Doanh thu</th><th style="white-space:nowrap">Nhập hàng</th>
-      <th style="white-space:nowrap">Chi phí QC</th><th style="white-space:nowrap">Lợi nhuận</th>
+      <th>Ngày</th><th>Đơn</th>
+      <th>Doanh thu</th><th>Nhập hàng</th>
+      <th>Chi phí QC</th><th>Lợi nhuận</th>
     </tr></thead>
     <tbody>
     ${dayRows.map(({date,orders})=>{
@@ -802,15 +810,15 @@ function renderDash(results,allCosts,fixedResult){
         <td ${cs}>${fmt(rev)}</td>
         <td ${cs}>${dc.price?fmt(dc.price):'–'}</td>
         <td ${cs}>${dc.adCost?fmt(dc.adCost):'–'}</td>
-        <td style="white-space:nowrap;overflow:visible;text-overflow:unset;${profit>=0?'color:#15803D':'color:#C00000'};font-weight:600">${fmt(profit)}</td>
+        <td style="white-space:nowrap;overflow:visible;text-overflow:clip;${profit>=0?'color:#15803D':'color:#C00000'};font-weight:600">${fmt(profit)}</td>
       </tr>`;
     }).join('')}
     <tr class="total-row">
-      <td colspan="2" style="white-space:nowrap;overflow:visible"><b>TỔNG THÁNG</b></td>
-      <td style="white-space:nowrap;overflow:visible"><b>${fmt(totalRev)}</b></td>
-      <td style="white-space:nowrap;overflow:visible"><b>${fmt(tP)}</b></td>
-      <td style="white-space:nowrap;overflow:visible"><b>${fmt(tA)}</b></td>
-      <td style="white-space:nowrap;overflow:visible;${netProfit>=0?'color:#15803D':'color:#C00000'};font-weight:700"><b>${fmt(netProfit)}</b></td>
+      <td colspan="2" ${cs}><b>TỔNG THÁNG</b></td>
+      <td ${cs}><b>${fmt(totalRev)}</b></td>
+      <td ${cs}><b>${fmt(tP)}</b></td>
+      <td ${cs}><b>${fmt(tA)}</b></td>
+      <td style="white-space:nowrap;overflow:visible;text-overflow:clip;${netProfit>=0?'color:#15803D':'color:#C00000'};font-weight:700"><b>${fmt(netProfit)}</b></td>
     </tr>
     </tbody>
   </table></div>
