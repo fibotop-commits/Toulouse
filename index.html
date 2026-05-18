@@ -478,7 +478,7 @@ async function parseChat(){
   const userPrompt=`Đoạn chat cần phân tích:\n---\n${chat}\n---`;
   
   // Sử dụng model mới nhất Gemini 2.0 Flash để giải quyết lỗi không tìm thấy model ở v1beta
-  const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   try{
     const res=await fetch(GEMINI_API,{
