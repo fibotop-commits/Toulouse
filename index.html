@@ -245,12 +245,12 @@ tr.trow:hover td{background:#b8d9a6}
     <div id="aiBody">
       <div class="ai-notice">
         <i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>
-        <span>Cần <b>Anthropic API Key</b> để dùng tính năng này. Lấy key tại <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com →</a> (có gói miễn phí)</span>
+        <span>Cần <b>Gemini API Key</b> để dùng tính năng này. Lấy key miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio →</a></span>
       </div>
       <div class="fgrid" style="margin-bottom:10px">
         <div class="fg" style="grid-column:1/-1">
-          <label>API Key <span style="font-weight:400;color:#aaa">(sk-ant-api03-...)</span></label>
-          <input type="password" id="aiKey" placeholder="Dán API Key vào đây..." autocomplete="off" oninput="saveAiKey()">
+          <label>API Key <span style="font-weight:400;color:#aaa">(AIzaSy...)</span></label>
+          <input type="password" id="aiKey" placeholder="Dán Gemini API Key vào đây..." autocomplete="off" oninput="saveAiKey()">
         </div>
       </div>
       <div class="fg" style="margin-bottom:12px">
@@ -442,78 +442,75 @@ let dashY=new Date().getFullYear(),dashM=new Date().getMonth()+1,dashChart=null;
 let dashExportData=null;
 let reportData=[],reportCosts=[],reportMonthFixeds={},currentTab='orders';
 
-/* ══ AI PARSE CHAT (MỚI) ══ */
+/* ══ AI PARSE CHAT (GEMINI) ══ */
 let aiOpen=true;
-const AI_API='https://api.anthropic.com/v1/messages';
 
 function saveAiKey(){
-  // Lưu key vào biến session (không dùng localStorage)
-  // Key sẽ mất khi đóng tab – đây là behaviour an toàn
+  // Lưu key vào biến session (không dùng localStorage để bảo mật)
 }
 
 async function parseChat(){
   const chat=$('aiChat').value.trim();
   const apiKey=$('aiKey').value.trim();
   if(!chat){toast('Vui lòng dán đoạn chat vào!',true);return;}
-  if(!apiKey){toast('Vui lòng nhập Anthropic API Key!',true);$('aiKey').focus();return;}
+  if(!apiKey){toast('Vui lòng nhập Gemini API Key!',true);$('aiKey').focus();return;}
 
   $('aiBtnTxt').innerHTML='<span class="spinner"></span> Đang phân tích...';
   $('aiBtnSub').disabled=true;
   $('aiResult').innerHTML='';
 
-  const systemPrompt=`Bạn là trợ lý đọc đơn đặt bánh sinh nhật Toulouse (Hà Nội). Chỉ trả về JSON, không thêm bất kỳ text nào khác, không markdown.`;
-
-  const userPrompt=`Phân tích đoạn chat đặt bánh sau. Trả về JSON với đúng các trường này:
+  // Prompt hệ thống hướng dẫn Gemini trả về chuẩn định dạng JSON
+  const systemPrompt=`Bạn là trợ lý đọc đơn đặt bánh sinh nhật Toulouse (Hà Nội). Phân tích đoạn chat và trả về đúng một object JSON (không dùng markdown, không giải thích thêm).
+Định dạng JSON cần trả về:
 {
   "time": "HH:MM (giờ giao 24h, để trống nếu không có)",
   "size": "size hoặc loại bánh (để trống nếu không có)",
   "cakePrice": số (giá bánh đơn vị NGHÌN đồng – VD 350k→350, 350.000đ→350, 0.35 triệu→350; để 0 nếu không có),
   "accPrice": số (giá phụ kiện đơn vị NGHÌN đồng, để 0 nếu không có),
   "acc": "mô tả phụ kiện (để trống nếu không có)",
-  "ship": số (giá ship đơn vị NGHÌN đồng, để 0 nếu không có),
+  "ship": số (giá ship đơn vị NGHÌN đồng, để 0 nếu không có)",
   "name": "tên khách hàng (để trống nếu không có)",
-  "phone": "số điện thoại chỉ gồm chữ số không dấu cách (để trống nếu không có)",
+  "phone": "số điện thoại chỉ gồm chữ số (để trống nếu không có)",
   "addr": "địa chỉ giao hàng đầy đủ (để trống nếu không có)",
-  "note": "ghi chú đặc biệt: tên trên bánh, màu sắc, yêu cầu riêng (để trống nếu không có)"
-}
+  "note": "ghi chú đặc biệt: lời chúc trên bánh, màu sắc, yêu cầu riêng (để trống nếu không có)"
+}`;
 
-Lưu ý: giá viết trên bánh (Happy Birthday...) → điền vào note, KHÔNG điền vào acc.
-
-Đoạn chat:
----
-${chat}
----`;
+  const userPrompt=`Đoạn chat cần phân tích:\n---\n${chat}\n---`;
+  
+  // Sử dụng model mới nhất Gemini 2.0 Flash để giải quyết lỗi không tìm thấy model ở v1beta
+  const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
   try{
-    const res=await fetch(AI_API,{
+    const res=await fetch(GEMINI_API,{
       method:'POST',
       headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
+        'Content-Type':'application/json'
       },
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:600,
-        system:systemPrompt,
-        messages:[{role:'user',content:userPrompt}]
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        contents: [{
+          parts: [{ text: userPrompt }]
+        }],
+        generationConfig: {
+          // Ép API bắt buộc phải xuất ra chuỗi JSON nguyên gốc, không kèm text thừa
+          responseMimeType: "application/json",
+          temperature: 0.1
+        }
       })
     });
 
     if(!res.ok){
       const errData=await res.json().catch(()=>({}));
       const msg=errData.error?.message||'HTTP '+res.status;
-      if(res.status===401)throw new Error('API Key không đúng hoặc hết hạn. Kiểm tra lại key.');
-      if(res.status===429)throw new Error('Quá nhiều request. Vui lòng thử lại sau vài giây.');
+      if(msg.includes("API key not valid")) throw new Error('API Key không đúng. Hãy kiểm tra lại.');
       throw new Error(msg);
     }
 
     const data=await res.json();
-    const rawText=data.content[0].text.trim();
-    const jsonMatch=rawText.match(/\{[\s\S]*\}/);
-    if(!jsonMatch)throw new Error('AI không trả về định dạng JSON hợp lệ. Thử lại.');
-    const order=JSON.parse(jsonMatch[0]);
+    const rawText=data.candidates[0].content.parts[0].text.trim();
+    const order=JSON.parse(rawText);
 
     // Điền vào form
     if(order.time)$('fTime').value=order.time;
@@ -541,7 +538,7 @@ ${chat}
     ].filter(Boolean);
 
     $('aiResult').innerHTML=`<div class="ai-ok">
-      ✅ <b>AI đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
+      ✅ <b>Gemini 2.0 đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
       <span style="color:var(--cm);font-size:11px">↓ Kiểm tra lại form bên dưới, chỉnh nếu cần rồi bấm <b>Thêm đơn</b>.</span>
     </div>`;
 
