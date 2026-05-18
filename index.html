@@ -130,7 +130,6 @@ tr.trow:hover td{background:#b8d9a6}
 <div class="wrap">
 <div id="toast" class="toast"></div>
 
-<!-- PASSWORD MODAL -->
 <div id="pwModal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <h3><i class="ti ti-lock"></i> Xác nhận mật khẩu</h3>
@@ -143,7 +142,6 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
-<!-- EXCEL ĐƠN HÀNG MODAL -->
 <div id="xlsxModal" class="modal-overlay" style="display:none">
   <div class="modal-box" style="width:400px">
     <h3><i class="ti ti-file-spreadsheet"></i> Xuất Excel đơn hàng</h3>
@@ -159,7 +157,6 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
-<!-- EXCEL CHI PHÍ MODAL -->
 <div id="costXlsxModal" class="modal-overlay" style="display:none">
   <div class="modal-box" style="width:400px">
     <h3><i class="ti ti-file-spreadsheet"></i> Xuất Excel chi phí (kèm ảnh HĐ)</h3>
@@ -175,7 +172,6 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-brand">
     <svg width="68" height="68" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -217,7 +213,6 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
   <button class="tab-btn active" id="tab-orders-btn" onclick="showTab('orders')"><i class="ti ti-clipboard-list"></i> Đơn hàng ngày</button>
   <button class="tab-btn" id="tab-costs-btn" onclick="showTab('costs')"><i class="ti ti-coins"></i> Chi phí</button>
@@ -225,7 +220,6 @@ tr.trow:hover td{background:#b8d9a6}
   <button class="tab-btn" id="tab-report-btn" onclick="showTab('report')"><i class="ti ti-report-analytics"></i> Báo cáo</button>
 </div>
 
-<!-- ══ TAB: ĐƠN HÀNG ══ -->
 <div id="tab-orders">
   <div class="metrics">
     <div class="mc"><div class="mc-lbl">Số đơn</div><div class="mc-val hl" id="mCount">–</div></div>
@@ -234,7 +228,6 @@ tr.trow:hover td{background:#b8d9a6}
     <div class="mc"><div class="mc-lbl">Tổng doanh thu</div><div class="mc-val hl" id="mTotal">–</div></div>
   </div>
 
-  <!-- ══ AI PARSE CARD (MỚI) ══ -->
   <div class="fcard" id="aiCard">
     <div class="ftitle" id="aiToggle">
       <i class="ti ti-robot" style="color:#5B5EA6"></i>
@@ -265,8 +258,6 @@ tr.trow:hover td{background:#b8d9a6}
       <div id="aiResult" style="margin-top:10px"></div>
     </div>
   </div>
-  <!-- ══ END AI CARD ══ -->
-
   <div class="fcard" id="fcard">
     <div class="ftitle" id="ftoggle"><i class="ti ti-plus" id="fIcon"></i><span id="fTitle">Thêm đơn hàng mới</span><i class="ti ti-chevron-down fchev" id="fchev"></i></div>
     <div id="fbody">
@@ -304,7 +295,6 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
-<!-- ══ TAB: CHI PHÍ ══ -->
 <div id="tab-costs" style="display:none">
   <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem">
     <button class="btn btn-ol" onclick="onClickCostXlsx()"><i class="ti ti-download"></i> Tải Excel chi phí</button>
@@ -372,7 +362,6 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
-<!-- ══ TAB: DASHBOARD ══ -->
 <div id="tab-dashboard" style="display:none">
   <div class="dash-ctrl">
     <div style="display:flex;align-items:center;gap:8px">
@@ -407,7 +396,6 @@ tr.trow:hover td{background:#b8d9a6}
   <div class="chart-card"><h3>Chi tiết từng ngày</h3><div id="dashTable"><div class="dash-loading">Chọn tháng và nhấn tải lại...</div></div></div>
 </div>
 
-<!-- ══ TAB: BÁO CÁO ══ -->
 <div id="tab-report" style="display:none">
   <div class="rpt-card">
     <h3><i class="ti ti-calendar-stats"></i> Báo cáo tổng hợp Thu – Chi</h3>
@@ -446,7 +434,9 @@ let reportData=[],reportCosts=[],reportMonthFixeds={},currentTab='orders';
 let aiOpen=true;
 
 function saveAiKey(){
-  // Lưu key vào biến session (không dùng localStorage để bảo mật)
+  const key = $('aiKey').value.trim();
+  if(key) localStorage.setItem('toulouse_gemini_key', key);
+  else localStorage.removeItem('toulouse_gemini_key');
 }
 
 async function parseChat(){
@@ -468,7 +458,7 @@ async function parseChat(){
   "cakePrice": số (giá bánh đơn vị NGHÌN đồng – VD 350k→350, 350.000đ→350, 0.35 triệu→350; để 0 nếu không có),
   "accPrice": số (giá phụ kiện đơn vị NGHÌN đồng, để 0 nếu không có),
   "acc": "mô tả phụ kiện (để trống nếu không có)",
-  "ship": số (giá ship đơn vị NGHÌN đồng, để 0 nếu không có)",
+  "ship": số (giá ship đơn vị NGHÌN đồng, để 0 nếu không có),
   "name": "tên khách hàng (để trống nếu không có)",
   "phone": "số điện thoại chỉ gồm chữ số (để trống nếu không có)",
   "addr": "địa chỉ giao hàng đầy đủ (để trống nếu không có)",
@@ -477,7 +467,7 @@ async function parseChat(){
 
   const userPrompt=`Đoạn chat cần phân tích:\n---\n${chat}\n---`;
   
-  // Sử dụng model mới nhất Gemini 2.0 Flash để giải quyết lỗi không tìm thấy model ở v1beta
+  // Sử dụng model mới nhất Gemini 2.5 Flash
   const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   try{
@@ -538,7 +528,7 @@ async function parseChat(){
     ].filter(Boolean);
 
     $('aiResult').innerHTML=`<div class="ai-ok">
-      ✅ <b>Gemini 2.0 đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
+      ✅ <b>AI đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
       <span style="color:var(--cm);font-size:11px">↓ Kiểm tra lại form bên dưới, chỉnh nếu cần rồi bấm <b>Thêm đơn</b>.</span>
     </div>`;
 
@@ -1112,6 +1102,10 @@ function updateClock(){const now=new Date(),h=now.getHours()%12,m=now.getMinutes
   $('selDate').value=todayStr();
   $('selDate').addEventListener('change',()=>{cancelEdit();if(currentTab==='orders')render();else if(currentTab==='costs')renderCosts();});
   initDashSelects();initClock();render();
+  
+  // Tự động tải lại API Key đã lưu
+  const savedKey = localStorage.getItem('toulouse_gemini_key');
+  if(savedKey) $('aiKey').value = savedKey;
 })();
 </script>
 </body>
