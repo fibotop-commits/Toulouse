@@ -425,7 +425,7 @@ let aiOpen=true;
 
 async function parseChat(){
   const chat=$('aiChat').value.trim();
-  const apiKey="AIzaSyA63lm9SolmEwWhi2dcoFUoahKqQ6V_1Bo";
+  const apiKey="AIzaSyB7QIIUOwenz8FRZ-blFITb-zoA7zDqjlw";
   if(!chat){toast('Vui lòng dán đoạn chat vào!',true);return;}
 
   $('aiBtnTxt').innerHTML='<span class="spinner"></span> Đang phân tích...';
@@ -731,7 +731,7 @@ async function saveFixed(){
 function onClickXlsx(){requireAuth('boss',()=>{const t=todayStr();$('xlsxFrom').value=t;$('xlsxTo').value=t;$('xlsxModal').style.display='flex';});}
 async function doExportRange(){
   const from=$('xlsxFrom').value,to=$('xlsxTo').value;
-  if(!from||to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
+  if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
   $('xlsxBtnTxt').innerHTML='<span class="spinner"></span> Đang tải...';$('xlsxBtn').disabled=true;
   try{const results=await fetchRange(genDates(from,to));await buildExcel(results,from===to?from:`${from}→${to}`,from===to?`Toulouse_${from}.xlsx`:`Toulouse_${from}_${to}.xlsx`);$('xlsxModal').style.display='none';}
   catch(e){toast('Lỗi: '+e.message,true);}
@@ -764,7 +764,7 @@ async function buildExcel(results,titleLabel,filename){
 function onClickCostXlsx(){const t=todayStr();$('cxlsxFrom').value=t;$('cxlsxTo').value=t;$('costXlsxModal').style.display='flex';}
 async function doExportCostRange(){
   const from=$('cxlsxFrom').value,to=$('cxlsxTo').value;
-  if(!from||to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
+  if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
   $('cxlsxBtnTxt').innerHTML='<span class="spinner"></span> Đang xuất...';$('cxlsxBtn').disabled=true;
   try{
     const dates=genDates(from,to);
@@ -929,7 +929,7 @@ function initReport(){if(!$('rptFrom').value){const d=new Date(),y=d.getFullYear
 
 async function loadReport(){
   const from=$('rptFrom').value,to=$('rptTo').value;
-  if(!from||to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
+  if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
   $('rptResult').innerHTML='<div class="dash-loading"><span class="sk"></span> Đang tải dữ liệu thu & chi...</div>';
   $('btnRptXlsx').style.display='none';
   const dates=genDates(from,to);
