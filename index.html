@@ -236,16 +236,6 @@ tr.trow:hover td{background:#b8d9a6}
       <i class="ti ti-chevron-down fchev" id="aiChev"></i>
     </div>
     <div id="aiBody">
-      <div class="ai-notice">
-        <i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>
-        <span>Cần <b>Gemini API Key</b> để dùng tính năng này. Lấy key miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio →</a></span>
-      </div>
-      <div class="fgrid" style="margin-bottom:10px">
-        <div class="fg" style="grid-column:1/-1">
-          <label>API Key <span style="font-weight:400;color:#aaa">(AIzaSy...)</span></label>
-          <input type="password" id="aiKey" placeholder="Dán Gemini API Key vào đây..." autocomplete="off" oninput="saveAiKey()">
-        </div>
-      </div>
       <div class="fg" style="margin-bottom:12px">
         <label>Dán đoạn chat khách hàng vào đây</label>
         <textarea id="aiChat" style="height:130px;resize:vertical" placeholder="VD:&#10;Chị ơi cho em đặt bánh sinh nhật nhé&#10;Size 16cm kem bơ, giá 450k&#10;Giao lúc 15:30 ạ, ship 35k&#10;Địa chỉ: 45 Nguyễn Trãi, Đống Đa, HN&#10;Tên: Nguyễn Lan Anh – SĐT: 0912 345 678&#10;Viết chữ Happy Birthday Minh lên bánh nhé ạ"></textarea>
@@ -433,17 +423,10 @@ let reportData=[],reportCosts=[],reportMonthFixeds={},currentTab='orders';
 /* ══ AI PARSE CHAT (GEMINI) ══ */
 let aiOpen=true;
 
-function saveAiKey(){
-  const key = $('aiKey').value.trim();
-  if(key) localStorage.setItem('toulouse_gemini_key', key);
-  else localStorage.removeItem('toulouse_gemini_key');
-}
-
 async function parseChat(){
   const chat=$('aiChat').value.trim();
-  const apiKey=$('aiKey').value.trim();
+  const apiKey="AIzaSyA63lm9SolmEwWhi2dcoFUoahKqQ6V_1Bo";
   if(!chat){toast('Vui lòng dán đoạn chat vào!',true);return;}
-  if(!apiKey){toast('Vui lòng nhập Gemini API Key!',true);$('aiKey').focus();return;}
 
   $('aiBtnTxt').innerHTML='<span class="spinner"></span> Đang phân tích...';
   $('aiBtnSub').disabled=true;
@@ -748,7 +731,7 @@ async function saveFixed(){
 function onClickXlsx(){requireAuth('boss',()=>{const t=todayStr();$('xlsxFrom').value=t;$('xlsxTo').value=t;$('xlsxModal').style.display='flex';});}
 async function doExportRange(){
   const from=$('xlsxFrom').value,to=$('xlsxTo').value;
-  if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
+  if(!from||to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
   $('xlsxBtnTxt').innerHTML='<span class="spinner"></span> Đang tải...';$('xlsxBtn').disabled=true;
   try{const results=await fetchRange(genDates(from,to));await buildExcel(results,from===to?from:`${from}→${to}`,from===to?`Toulouse_${from}.xlsx`:`Toulouse_${from}_${to}.xlsx`);$('xlsxModal').style.display='none';}
   catch(e){toast('Lỗi: '+e.message,true);}
@@ -781,7 +764,7 @@ async function buildExcel(results,titleLabel,filename){
 function onClickCostXlsx(){const t=todayStr();$('cxlsxFrom').value=t;$('cxlsxTo').value=t;$('costXlsxModal').style.display='flex';}
 async function doExportCostRange(){
   const from=$('cxlsxFrom').value,to=$('cxlsxTo').value;
-  if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
+  if(!from||to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
   $('cxlsxBtnTxt').innerHTML='<span class="spinner"></span> Đang xuất...';$('cxlsxBtn').disabled=true;
   try{
     const dates=genDates(from,to);
@@ -946,7 +929,7 @@ function initReport(){if(!$('rptFrom').value){const d=new Date(),y=d.getFullYear
 
 async function loadReport(){
   const from=$('rptFrom').value,to=$('rptTo').value;
-  if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
+  if(!from||to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
   $('rptResult').innerHTML='<div class="dash-loading"><span class="sk"></span> Đang tải dữ liệu thu & chi...</div>';
   $('btnRptXlsx').style.display='none';
   const dates=genDates(from,to);
@@ -1102,10 +1085,6 @@ function updateClock(){const now=new Date(),h=now.getHours()%12,m=now.getMinutes
   $('selDate').value=todayStr();
   $('selDate').addEventListener('change',()=>{cancelEdit();if(currentTab==='orders')render();else if(currentTab==='costs')renderCosts();});
   initDashSelects();initClock();render();
-  
-  // Tự động tải lại API Key đã lưu
-  const savedKey = localStorage.getItem('toulouse_gemini_key');
-  if(savedKey) $('aiKey').value = savedKey;
 })();
 </script>
 </body>
