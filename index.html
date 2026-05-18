@@ -409,7 +409,8 @@ tr.trow:hover td{background:#b8d9a6}
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyQnyijNC7jKLgFbEfKURNHkxw4GO7Sfy3HVpIrp2gwB3lSPlR6VtWvYuLnqzB9Gz3g0w/exec';
+// ĐÃ CẬP NHẬT ĐƯỜNG LINK SCRIPT MỚI Ở DƯỚI ĐÂY
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyVC19vfCxXrmjNA6EJalN7O0Sn13Uq6p8Bek4p0ykzD6UgjOzMZqxFN99v81p0EwyY3g/exec';
 const $=id=>document.getElementById(id);
 const n=v=>Number(v||0);
 const fmt=v=>n(v).toLocaleString('vi-VN')+'đ';
@@ -444,108 +445,71 @@ async function pasteToChat() {
   }
 }
 
-async function parseChat(){
-  const chat=$('aiChat').value.trim();
-  const apiKey="AIzaSyATlzMUjbdXqo0XtAG-IDdgmgfCnl36JN0";
-  if(!chat){toast('Vui lòng dán đoạn chat vào!',true);return;}
+async function parseChat() {
+  const chat = $('aiChat').value.trim();
+  if(!chat) { toast('Vui lòng dán đoạn chat vào!', true); return; }
 
-  $('aiBtnTxt').innerHTML='<span class="spinner"></span> Đang phân tích...';
-  $('aiBtnSub').disabled=true;
-  $('aiResult').innerHTML='';
+  $('aiBtnTxt').innerHTML = '<span class="spinner"></span> Đang phân tích...';
+  $('aiBtnSub').disabled = true;
+  $('aiResult').innerHTML = '';
 
-  // Prompt hệ thống hướng dẫn Gemini trả về chuẩn định dạng JSON
-  const systemPrompt=`Bạn là trợ lý đọc đơn đặt bánh sinh nhật Toulouse (Hà Nội). Phân tích đoạn chat và trả về đúng một object JSON (không dùng markdown, không giải thích thêm).
-Định dạng JSON cần trả về:
-{
-  "time": "HH:MM (giờ giao 24h, để trống nếu không có)",
-  "size": "size hoặc loại bánh (để trống nếu không có)",
-  "cakePrice": số (giá bánh đơn vị NGHÌN đồng – VD 350k→350, 350.000đ→350, 0.35 triệu→350; để 0 nếu không có),
-  "accPrice": số (giá phụ kiện đơn vị NGHÌN đồng, để 0 nếu không có),
-  "acc": "mô tả phụ kiện (để trống nếu không có)",
-  "ship": số (giá ship đơn vị NGHÌN đồng, để 0 nếu không có),
-  "name": "tên khách hàng (để trống nếu không có)",
-  "phone": "số điện thoại chỉ gồm chữ số (để trống nếu không có)",
-  "addr": "địa chỉ giao hàng đầy đủ (để trống nếu không có)",
-  "note": "ghi chú đặc biệt: lời chúc trên bánh, màu sắc, yêu cầu riêng (để trống nếu không có)"
-}`;
-
-  const userPrompt=`Đoạn chat cần phân tích:\n---\n${chat}\n---`;
-  
-  // Sử dụng model mới nhất Gemini 2.5 Flash
-  const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-  try{
-    const res=await fetch(GEMINI_API,{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
+  try {
+    // GỌI VỀ GOOGLE APPS SCRIPT ĐỂ BẢO MẬT API KEY
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain' 
       },
-      body:JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        },
-        contents: [{
-          parts: [{ text: userPrompt }]
-        }],
-        generationConfig: {
-          // Ép API bắt buộc phải xuất ra chuỗi JSON nguyên gốc, không kèm text thừa
-          responseMimeType: "application/json",
-          temperature: 0.1
-        }
-      })
+      body: JSON.stringify({ action: 'parseAI', chat: chat })
     });
 
-    if(!res.ok){
-      const errData=await res.json().catch(()=>({}));
-      const msg=errData.error?.message||'HTTP '+res.status;
-      if(msg.includes("API key not valid")) throw new Error('API Key không đúng. Hãy kiểm tra lại.');
-      throw new Error(msg);
-    }
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
 
-    const data=await res.json();
-    const rawText=data.candidates[0].content.parts[0].text.trim();
-    const order=JSON.parse(rawText);
+    if(!data.ok) throw new Error(data.error || 'Lỗi phân tích từ server');
+
+    const order = data.order; 
 
     // Điền vào form
-    if(order.time)$('fTime').value=order.time;
-    if(order.size)$('fSize').value=order.size;
-    if(order.cakePrice)$('fCake').value=order.cakePrice;
-    if(order.accPrice)$('fAcc').value=order.accPrice;
-    if(order.acc)$('fAccDesc').value=order.acc;
-    if(order.ship)$('fShip').value=order.ship;
-    if(order.name)$('fName').value=order.name;
-    if(order.phone)$('fPhone').value=order.phone;
-    if(order.addr)$('fAddr').value=order.addr;
-    if(order.note)$('fNote').value=order.note;
+    if(order.time) $('fTime').value = order.time;
+    if(order.size) $('fSize').value = order.size;
+    if(order.cakePrice) $('fCake').value = order.cakePrice;
+    if(order.accPrice) $('fAcc').value = order.accPrice;
+    if(order.acc) $('fAccDesc').value = order.acc;
+    if(order.ship) $('fShip').value = order.ship;
+    if(order.name) $('fName').value = order.name;
+    if(order.phone) $('fPhone').value = order.phone;
+    if(order.addr) $('fAddr').value = order.addr;
+    if(order.note) $('fNote').value = order.note;
     calc();
 
     // Mở form nếu đang đóng
-    if(!formOpen){formOpen=true;$('fbody').style.display='';$('fchev').style.transform='';}
+    if(!formOpen) { formOpen = true; $('fbody').style.display = ''; $('fchev').style.transform = ''; }
 
     // Tóm tắt kết quả
-    const parts=[
-      order.name&&`<b>👤</b> ${esc(order.name)}`,
-      order.phone&&`<b>📞</b> ${esc(order.phone)}`,
-      order.size&&`<b>🎂</b> ${esc(order.size)}`,
-      order.cakePrice&&`<b>💰</b> ${order.cakePrice}k`,
-      order.time&&`<b>🕐</b> ${esc(order.time)}`,
+    const parts = [
+      order.name && `<b>👤</b> ${esc(order.name)}`,
+      order.phone && `<b>📞</b> ${esc(order.phone)}`,
+      order.size && `<b>🎂</b> ${esc(order.size)}`,
+      order.cakePrice && `<b>💰</b> ${order.cakePrice}k`,
+      order.time && `<b>🕐</b> ${esc(order.time)}`,
     ].filter(Boolean);
 
-    $('aiResult').innerHTML=`<div class="ai-ok">
+    $('aiResult').innerHTML = `<div class="ai-ok">
       ✅ <b>AI đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
       <span style="color:var(--cm);font-size:11px">↓ Kiểm tra lại form bên dưới, chỉnh nếu cần rồi bấm <b>Thêm đơn</b>.</span>
     </div>`;
 
-    $('fcard').scrollIntoView({behavior:'smooth',block:'start'});
+    $('fcard').scrollIntoView({ behavior:'smooth', block:'start' });
     toast('✓ AI đã phân tích và điền form!');
 
-  }catch(e){
-    $('aiResult').innerHTML=`<div class="ai-err"><i class="ti ti-alert-triangle"></i> ${esc(e.message)}</div>`;
-    toast('Lỗi AI: '+e.message,true);
+  } catch(e) {
+    $('aiResult').innerHTML = `<div class="ai-err"><i class="ti ti-alert-triangle"></i> ${esc(e.message)}</div>`;
+    toast('Lỗi AI: ' + e.message, true);
   }
 
-  $('aiBtnTxt').textContent='Phân tích & tự điền form';
-  $('aiBtnSub').disabled=false;
+  $('aiBtnTxt').textContent = 'Phân tích & tự điền form';
+  $('aiBtnSub').disabled = false;
 }
 
 $('aiToggle').addEventListener('click',()=>{
