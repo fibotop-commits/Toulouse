@@ -907,8 +907,8 @@ function renderDash(results,allCosts,fixedResult){
   const dayRows=results.filter(r=>r.orders.length||costsByDate[normDate(r.date)]);
   if(!dayRows.length){$('dashTable').innerHTML='<div class="dash-loading">Không có dữ liệu</div>';return;}
 
-  $('dashTable').innerHTML=`<table class="dash-tbl">
-    <thead><tr><th>Ngày</th><th>Số đơn</th><th>Doanh thu</th><th>Nhập hàng</th><th>Chi phí QC</th><th>Lợi nhuận ngày</th></tr></thead>
+  $('dashTable').innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="dash-tbl" style="min-width:520px;width:100%">
+    <thead><tr><th>Ngày</th><th>Số đơn</th><th>Doanh thu</th><th>Nhập hàng</th><th>Chi phí QC</th><th>Lợi nhuận</th></tr></thead>
     <tbody>
     ${dayRows.map(({date,orders})=>{
       const d=parseInt(date.split('-')[2]);
@@ -933,7 +933,7 @@ function renderDash(results,allCosts,fixedResult){
       <td><b>${fmt(tA)}</b></td>
       <td style="${netProfit>=0?'color:#15803D':'color:#C00000'};font-weight:700"><b>${fmt(netProfit)}</b></td>
     </tr>
-    </tbody></table>
+    </tbody></table></div>
     <div style="font-size:11px;color:var(--cm);padding:8px 10px;background:#f9fbe7;border-top:.5px solid var(--bd)">
       * Chi phí cố định tháng: <b>${fmt(totalFixed)}</b> đã tính vào lợi nhuận ròng.
     </div>`;
