@@ -130,6 +130,7 @@ tr.trow:hover td{background:#b8d9a6}
 <div class="wrap">
 <div id="toast" class="toast"></div>
 
+<!-- PASSWORD MODAL -->
 <div id="pwModal" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <h3><i class="ti ti-lock"></i> Xác nhận mật khẩu</h3>
@@ -142,6 +143,7 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
+<!-- EXCEL ĐƠN HÀNG MODAL -->
 <div id="xlsxModal" class="modal-overlay" style="display:none">
   <div class="modal-box" style="width:400px">
     <h3><i class="ti ti-file-spreadsheet"></i> Xuất Excel đơn hàng</h3>
@@ -157,6 +159,7 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
+<!-- EXCEL CHI PHÍ MODAL -->
 <div id="costXlsxModal" class="modal-overlay" style="display:none">
   <div class="modal-box" style="width:400px">
     <h3><i class="ti ti-file-spreadsheet"></i> Xuất Excel chi phí (kèm ảnh HĐ)</h3>
@@ -172,6 +175,7 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
+<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-brand">
     <svg width="68" height="68" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -213,6 +217,7 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
+<!-- TABS -->
 <div class="tabs">
   <button class="tab-btn active" id="tab-orders-btn" onclick="showTab('orders')"><i class="ti ti-clipboard-list"></i> Đơn hàng ngày</button>
   <button class="tab-btn" id="tab-costs-btn" onclick="showTab('costs')"><i class="ti ti-coins"></i> Chi phí</button>
@@ -220,6 +225,7 @@ tr.trow:hover td{background:#b8d9a6}
   <button class="tab-btn" id="tab-report-btn" onclick="showTab('report')"><i class="ti ti-report-analytics"></i> Báo cáo</button>
 </div>
 
+<!-- ══ TAB: ĐƠN HÀNG ══ -->
 <div id="tab-orders">
   <div class="metrics">
     <div class="mc"><div class="mc-lbl">Số đơn</div><div class="mc-val hl" id="mCount">–</div></div>
@@ -228,6 +234,7 @@ tr.trow:hover td{background:#b8d9a6}
     <div class="mc"><div class="mc-lbl">Tổng doanh thu</div><div class="mc-val hl" id="mTotal">–</div></div>
   </div>
 
+  <!-- ══ AI PARSE CARD (MỚI) ══ -->
   <div class="fcard" id="aiCard">
     <div class="ftitle" id="aiToggle">
       <i class="ti ti-robot" style="color:#5B5EA6"></i>
@@ -238,12 +245,12 @@ tr.trow:hover td{background:#b8d9a6}
     <div id="aiBody">
       <div class="ai-notice">
         <i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>
-        <span>Cần <b>Gemini API Key</b> để dùng tính năng này. Lấy key miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio →</a></span>
+        <span>Cần <b>Anthropic API Key</b> để dùng tính năng này. Lấy key tại <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com →</a> (có gói miễn phí)</span>
       </div>
       <div class="fgrid" style="margin-bottom:10px">
         <div class="fg" style="grid-column:1/-1">
-          <label>API Key <span style="font-weight:400;color:#aaa">(AIzaSy...)</span></label>
-          <input type="password" id="aiKey" placeholder="Dán Gemini API Key vào đây..." autocomplete="off" oninput="saveAiKey()">
+          <label>API Key <span style="font-weight:400;color:#aaa">(sk-ant-api03-...)</span></label>
+          <input type="password" id="aiKey" placeholder="Dán API Key vào đây..." autocomplete="off" oninput="saveAiKey()">
         </div>
       </div>
       <div class="fg" style="margin-bottom:12px">
@@ -258,6 +265,8 @@ tr.trow:hover td{background:#b8d9a6}
       <div id="aiResult" style="margin-top:10px"></div>
     </div>
   </div>
+  <!-- ══ END AI CARD ══ -->
+
   <div class="fcard" id="fcard">
     <div class="ftitle" id="ftoggle"><i class="ti ti-plus" id="fIcon"></i><span id="fTitle">Thêm đơn hàng mới</span><i class="ti ti-chevron-down fchev" id="fchev"></i></div>
     <div id="fbody">
@@ -295,6 +304,7 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
+<!-- ══ TAB: CHI PHÍ ══ -->
 <div id="tab-costs" style="display:none">
   <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem">
     <button class="btn btn-ol" onclick="onClickCostXlsx()"><i class="ti ti-download"></i> Tải Excel chi phí</button>
@@ -362,6 +372,7 @@ tr.trow:hover td{background:#b8d9a6}
   </div>
 </div>
 
+<!-- ══ TAB: DASHBOARD ══ -->
 <div id="tab-dashboard" style="display:none">
   <div class="dash-ctrl">
     <div style="display:flex;align-items:center;gap:8px">
@@ -396,6 +407,7 @@ tr.trow:hover td{background:#b8d9a6}
   <div class="chart-card"><h3>Chi tiết từng ngày</h3><div id="dashTable"><div class="dash-loading">Chọn tháng và nhấn tải lại...</div></div></div>
 </div>
 
+<!-- ══ TAB: BÁO CÁO ══ -->
 <div id="tab-report" style="display:none">
   <div class="rpt-card">
     <h3><i class="ti ti-calendar-stats"></i> Báo cáo tổng hợp Thu – Chi</h3>
@@ -430,26 +442,28 @@ let dashY=new Date().getFullYear(),dashM=new Date().getMonth()+1,dashChart=null;
 let dashExportData=null;
 let reportData=[],reportCosts=[],reportMonthFixeds={},currentTab='orders';
 
-/* ══ AI PARSE CHAT (GEMINI) ══ */
+/* ══ AI PARSE CHAT (MỚI) ══ */
 let aiOpen=true;
+const AI_API='https://api.anthropic.com/v1/messages';
 
 function saveAiKey(){
-  // Lưu key vào biến session (không dùng localStorage để bảo mật)
+  // Lưu key vào biến session (không dùng localStorage)
+  // Key sẽ mất khi đóng tab – đây là behaviour an toàn
 }
 
 async function parseChat(){
   const chat=$('aiChat').value.trim();
   const apiKey=$('aiKey').value.trim();
   if(!chat){toast('Vui lòng dán đoạn chat vào!',true);return;}
-  if(!apiKey){toast('Vui lòng nhập Gemini API Key!',true);$('aiKey').focus();return;}
+  if(!apiKey){toast('Vui lòng nhập Anthropic API Key!',true);$('aiKey').focus();return;}
 
   $('aiBtnTxt').innerHTML='<span class="spinner"></span> Đang phân tích...';
   $('aiBtnSub').disabled=true;
   $('aiResult').innerHTML='';
 
-  // Prompt hệ thống hướng dẫn Gemini trả về chuẩn định dạng JSON
-  const systemPrompt=`Bạn là trợ lý đọc đơn đặt bánh sinh nhật Toulouse (Hà Nội). Phân tích đoạn chat và trả về đúng một object JSON (không dùng markdown, không giải thích thêm).
-Định dạng JSON cần trả về:
+  const systemPrompt=`Bạn là trợ lý đọc đơn đặt bánh sinh nhật Toulouse (Hà Nội). Chỉ trả về JSON, không thêm bất kỳ text nào khác, không markdown.`;
+
+  const userPrompt=`Phân tích đoạn chat đặt bánh sau. Trả về JSON với đúng các trường này:
 {
   "time": "HH:MM (giờ giao 24h, để trống nếu không có)",
   "size": "size hoặc loại bánh (để trống nếu không có)",
@@ -458,47 +472,48 @@ async function parseChat(){
   "acc": "mô tả phụ kiện (để trống nếu không có)",
   "ship": số (giá ship đơn vị NGHÌN đồng, để 0 nếu không có),
   "name": "tên khách hàng (để trống nếu không có)",
-  "phone": "số điện thoại chỉ gồm chữ số (để trống nếu không có)",
+  "phone": "số điện thoại chỉ gồm chữ số không dấu cách (để trống nếu không có)",
   "addr": "địa chỉ giao hàng đầy đủ (để trống nếu không có)",
-  "note": "ghi chú đặc biệt: lời chúc trên bánh, màu sắc, yêu cầu riêng (để trống nếu không có)"
-}`;
+  "note": "ghi chú đặc biệt: tên trên bánh, màu sắc, yêu cầu riêng (để trống nếu không có)"
+}
 
-  const userPrompt=`Đoạn chat cần phân tích:\n---\n${chat}\n---`;
-  
-  // Sử dụng model Gemini 1.5 Flash vì tốc độ cực nhanh và xử lý JSON rất tốt
-  const GEMINI_API = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+Lưu ý: giá viết trên bánh (Happy Birthday...) → điền vào note, KHÔNG điền vào acc.
+
+Đoạn chat:
+---
+${chat}
+---`;
 
   try{
-    const res=await fetch(GEMINI_API,{
+    const res=await fetch(AI_API,{
       method:'POST',
       headers:{
-        'Content-Type':'application/json'
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
       },
       body:JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        },
-        contents: [{
-          parts: [{ text: userPrompt }]
-        }],
-        generationConfig: {
-          // Ép API bắt buộc phải xuất ra chuỗi JSON nguyên gốc, không kèm text thừa
-          responseMimeType: "application/json",
-          temperature: 0.1
-        }
+        model:'claude-sonnet-4-20250514',
+        max_tokens:600,
+        system:systemPrompt,
+        messages:[{role:'user',content:userPrompt}]
       })
     });
 
     if(!res.ok){
       const errData=await res.json().catch(()=>({}));
       const msg=errData.error?.message||'HTTP '+res.status;
-      if(msg.includes("API key not valid")) throw new Error('API Key không đúng. Hãy kiểm tra lại.');
+      if(res.status===401)throw new Error('API Key không đúng hoặc hết hạn. Kiểm tra lại key.');
+      if(res.status===429)throw new Error('Quá nhiều request. Vui lòng thử lại sau vài giây.');
       throw new Error(msg);
     }
 
     const data=await res.json();
-    const rawText=data.candidates[0].content.parts[0].text.trim();
-    const order=JSON.parse(rawText);
+    const rawText=data.content[0].text.trim();
+    const jsonMatch=rawText.match(/\{[\s\S]*\}/);
+    if(!jsonMatch)throw new Error('AI không trả về định dạng JSON hợp lệ. Thử lại.');
+    const order=JSON.parse(jsonMatch[0]);
 
     // Điền vào form
     if(order.time)$('fTime').value=order.time;
@@ -526,7 +541,7 @@ async function parseChat(){
     ].filter(Boolean);
 
     $('aiResult').innerHTML=`<div class="ai-ok">
-      ✅ <b>Gemini đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
+      ✅ <b>AI đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
       <span style="color:var(--cm);font-size:11px">↓ Kiểm tra lại form bên dưới, chỉnh nếu cần rồi bấm <b>Thêm đơn</b>.</span>
     </div>`;
 
@@ -746,7 +761,7 @@ async function saveFixed(){
 function onClickXlsx(){requireAuth('boss',()=>{const t=todayStr();$('xlsxFrom').value=t;$('xlsxTo').value=t;$('xlsxModal').style.display='flex';});}
 async function doExportRange(){
   const from=$('xlsxFrom').value,to=$('xlsxTo').value;
-  if(!from||to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
+  if(!from||!to){toast('Vui lòng chọn ngày!',true);return;}if(from>to){toast('Ngày bắt đầu phải ≤ ngày kết thúc!',true);return;}
   $('xlsxBtnTxt').innerHTML='<span class="spinner"></span> Đang tải...';$('xlsxBtn').disabled=true;
   try{const results=await fetchRange(genDates(from,to));await buildExcel(results,from===to?from:`${from}→${to}`,from===to?`Toulouse_${from}.xlsx`:`Toulouse_${from}_${to}.xlsx`);$('xlsxModal').style.display='none';}
   catch(e){toast('Lỗi: '+e.message,true);}
