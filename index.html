@@ -10,7 +10,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--cb);color:var(--ct);min-height:100vh}
 .wrap{max-width:1120px;margin:0 auto;padding:1rem 1.25rem 4rem}
-input[type=text],input[type=number],input[type=time],input[type=date],textarea,select{font-family:var(--font);border:.5px solid var(--bd2);border-radius:var(--rmd);padding:8px 10px;background:var(--cc);color:var(--ct);font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+input[type=text],input[type=number],input[type=time],input[type=date],input[type=password],textarea,select{font-family:var(--font);border:.5px solid var(--bd2);border-radius:var(--rmd);padding:8px 10px;background:var(--cc);color:var(--ct);font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
 input:focus,textarea:focus,select:focus{border-color:var(--olive);box-shadow:0 0 0 2px rgba(107,122,46,.15)}
 .hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:1.25rem 0 1rem;border-bottom:1px solid rgba(107,122,46,.25);margin-bottom:.75rem}
 .hdr-brand{display:flex;align-items:center;gap:14px}
@@ -48,9 +48,14 @@ input:focus,textarea:focus,select:focus{border-color:var(--olive);box-shadow:0 0
 .btn-sub{flex:1;background:var(--olive);color:#fff;border:none;border-radius:var(--rmd);padding:10px;font-size:13px;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
 .btn-sub:hover{background:var(--olive-dark)}.btn-sub:disabled{opacity:.6;pointer-events:none}
 .btn-sub.orange{background:#E67E22}.btn-sub.orange:hover{background:#D35400}
+.btn-sub.ai{background:#5B5EA6}.btn-sub.ai:hover{background:#3E417A}
 .btn-cancel{background:none;border:.5px solid var(--bd2);color:var(--cm);border-radius:var(--rmd);padding:10px 14px;font-size:13px;cursor:pointer;font-family:var(--font)}
 .btn-cancel:hover{background:var(--olive-light)}
 .past-notice{background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 14px;font-size:13px;color:#92400E;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ai-notice{background:#EEF2FF;border:1px solid #C7D2FE;border-radius:8px;padding:10px 14px;font-size:12px;color:#3730A3;display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+.ai-notice a{color:#4F46E5;font-weight:600}
+.ai-ok{background:#f0f7e6;border:1px solid var(--olive);border-radius:8px;padding:10px 14px;font-size:12px;color:#2d4a0e;line-height:1.9}
+.ai-err{background:#FCEBEB;border:1px solid #C00000;border-radius:8px;padding:10px 14px;font-size:12px;color:#C00000}
 .tw{overflow-x:auto;border-radius:var(--rlg);border:.5px solid var(--bd);background:var(--cc);box-shadow:0 1px 4px rgba(0,0,0,.05)}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 th{background:var(--olive);color:#fff;padding:9px 8px;text-align:left;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -105,12 +110,12 @@ tr.trow:hover td{background:#b8d9a6}
 .img-viewer{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:2000;cursor:zoom-out}
 .img-viewer img{max-width:92vw;max-height:92vh;border-radius:8px}
 #clockSvg{flex-shrink:0;filter:drop-shadow(0 1px 3px rgba(0,0,0,.15))}
-/* Bảng báo cáo tổng hợp */
 .rpt-sum-tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 .rpt-sum-tbl th{background:var(--olive);color:#fff;padding:8px 10px;white-space:nowrap;font-weight:500}
 .rpt-sum-tbl td{padding:7px 10px;border-bottom:.5px solid var(--bd);white-space:nowrap;overflow:visible}
 .rpt-sum-tbl .total-row td{background:#C6E0B4;font-weight:700;color:#C00000}
-/* Print styles */
+/* AI card accent */
+#aiCard{border-left:3px solid #5B5EA6}
 @media print{
   .hdr,.tabs,.btn-row,.dash-ctrl,.btn-ol,#tab-orders,#tab-costs,#tab-report,.rpt-card:first-child{display:none!important}
   #tab-dashboard{display:block!important}
@@ -228,6 +233,40 @@ tr.trow:hover td{background:#b8d9a6}
     <div class="mc"><div class="mc-lbl">Tiền ship</div><div class="mc-val" id="mShip">–</div></div>
     <div class="mc"><div class="mc-lbl">Tổng doanh thu</div><div class="mc-val hl" id="mTotal">–</div></div>
   </div>
+
+  <!-- ══ AI PARSE CARD (MỚI) ══ -->
+  <div class="fcard" id="aiCard">
+    <div class="ftitle" id="aiToggle">
+      <i class="ti ti-robot" style="color:#5B5EA6"></i>
+      <span>Nhập đơn từ chat AI</span>
+      <span style="font-size:10px;background:#e8eaf6;color:#3949ab;border-radius:10px;padding:2px 8px;font-weight:600;margin-left:2px;letter-spacing:.3px">AI</span>
+      <i class="ti ti-chevron-down fchev" id="aiChev"></i>
+    </div>
+    <div id="aiBody">
+      <div class="ai-notice">
+        <i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>
+        <span>Cần <b>Anthropic API Key</b> để dùng tính năng này. Lấy key tại <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com →</a> (có gói miễn phí)</span>
+      </div>
+      <div class="fgrid" style="margin-bottom:10px">
+        <div class="fg" style="grid-column:1/-1">
+          <label>API Key <span style="font-weight:400;color:#aaa">(sk-ant-api03-...)</span></label>
+          <input type="password" id="aiKey" placeholder="Dán API Key vào đây..." autocomplete="off" oninput="saveAiKey()">
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:12px">
+        <label>Dán đoạn chat khách hàng vào đây</label>
+        <textarea id="aiChat" style="height:130px;resize:vertical" placeholder="VD:&#10;Chị ơi cho em đặt bánh sinh nhật nhé&#10;Size 16cm kem bơ, giá 450k&#10;Giao lúc 15:30 ạ, ship 35k&#10;Địa chỉ: 45 Nguyễn Trãi, Đống Đa, HN&#10;Tên: Nguyễn Lan Anh – SĐT: 0912 345 678&#10;Viết chữ Happy Birthday Minh lên bánh nhé ạ"></textarea>
+      </div>
+      <div class="fbtns">
+        <button class="btn-sub ai" id="aiBtnSub" onclick="parseChat()">
+          <i class="ti ti-wand"></i><span id="aiBtnTxt">Phân tích & tự điền form</span>
+        </button>
+      </div>
+      <div id="aiResult" style="margin-top:10px"></div>
+    </div>
+  </div>
+  <!-- ══ END AI CARD ══ -->
+
   <div class="fcard" id="fcard">
     <div class="ftitle" id="ftoggle"><i class="ti ti-plus" id="fIcon"></i><span id="fTitle">Thêm đơn hàng mới</span><i class="ti ti-chevron-down fchev" id="fchev"></i></div>
     <div id="fbody">
@@ -400,8 +439,130 @@ let editCostId=null,currentCosts=[],costFormOpen=true,fixedBodyOpen=true;
 let pendingImageData=null,pendingFileId=null,pendingClearImage=false,currentEditFileId=null;
 let pwCallback=null,pwLevel=null,authedAdmin=false,authedBoss=false;
 let dashY=new Date().getFullYear(),dashM=new Date().getMonth()+1,dashChart=null;
-let dashExportData=null; // lưu data dashboard để export
+let dashExportData=null;
 let reportData=[],reportCosts=[],reportMonthFixeds={},currentTab='orders';
+
+/* ══ AI PARSE CHAT (MỚI) ══ */
+let aiOpen=true;
+const AI_API='https://api.anthropic.com/v1/messages';
+
+function saveAiKey(){
+  // Lưu key vào biến session (không dùng localStorage)
+  // Key sẽ mất khi đóng tab – đây là behaviour an toàn
+}
+
+async function parseChat(){
+  const chat=$('aiChat').value.trim();
+  const apiKey=$('aiKey').value.trim();
+  if(!chat){toast('Vui lòng dán đoạn chat vào!',true);return;}
+  if(!apiKey){toast('Vui lòng nhập Anthropic API Key!',true);$('aiKey').focus();return;}
+
+  $('aiBtnTxt').innerHTML='<span class="spinner"></span> Đang phân tích...';
+  $('aiBtnSub').disabled=true;
+  $('aiResult').innerHTML='';
+
+  const systemPrompt=`Bạn là trợ lý đọc đơn đặt bánh sinh nhật Toulouse (Hà Nội). Chỉ trả về JSON, không thêm bất kỳ text nào khác, không markdown.`;
+
+  const userPrompt=`Phân tích đoạn chat đặt bánh sau. Trả về JSON với đúng các trường này:
+{
+  "time": "HH:MM (giờ giao 24h, để trống nếu không có)",
+  "size": "size hoặc loại bánh (để trống nếu không có)",
+  "cakePrice": số (giá bánh đơn vị NGHÌN đồng – VD 350k→350, 350.000đ→350, 0.35 triệu→350; để 0 nếu không có),
+  "accPrice": số (giá phụ kiện đơn vị NGHÌN đồng, để 0 nếu không có),
+  "acc": "mô tả phụ kiện (để trống nếu không có)",
+  "ship": số (giá ship đơn vị NGHÌN đồng, để 0 nếu không có),
+  "name": "tên khách hàng (để trống nếu không có)",
+  "phone": "số điện thoại chỉ gồm chữ số không dấu cách (để trống nếu không có)",
+  "addr": "địa chỉ giao hàng đầy đủ (để trống nếu không có)",
+  "note": "ghi chú đặc biệt: tên trên bánh, màu sắc, yêu cầu riêng (để trống nếu không có)"
+}
+
+Lưu ý: giá viết trên bánh (Happy Birthday...) → điền vào note, KHÔNG điền vào acc.
+
+Đoạn chat:
+---
+${chat}
+---`;
+
+  try{
+    const res=await fetch(AI_API,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:600,
+        system:systemPrompt,
+        messages:[{role:'user',content:userPrompt}]
+      })
+    });
+
+    if(!res.ok){
+      const errData=await res.json().catch(()=>({}));
+      const msg=errData.error?.message||'HTTP '+res.status;
+      if(res.status===401)throw new Error('API Key không đúng hoặc hết hạn. Kiểm tra lại key.');
+      if(res.status===429)throw new Error('Quá nhiều request. Vui lòng thử lại sau vài giây.');
+      throw new Error(msg);
+    }
+
+    const data=await res.json();
+    const rawText=data.content[0].text.trim();
+    const jsonMatch=rawText.match(/\{[\s\S]*\}/);
+    if(!jsonMatch)throw new Error('AI không trả về định dạng JSON hợp lệ. Thử lại.');
+    const order=JSON.parse(jsonMatch[0]);
+
+    // Điền vào form
+    if(order.time)$('fTime').value=order.time;
+    if(order.size)$('fSize').value=order.size;
+    if(order.cakePrice)$('fCake').value=order.cakePrice;
+    if(order.accPrice)$('fAcc').value=order.accPrice;
+    if(order.acc)$('fAccDesc').value=order.acc;
+    if(order.ship)$('fShip').value=order.ship;
+    if(order.name)$('fName').value=order.name;
+    if(order.phone)$('fPhone').value=order.phone;
+    if(order.addr)$('fAddr').value=order.addr;
+    if(order.note)$('fNote').value=order.note;
+    calc();
+
+    // Mở form nếu đang đóng
+    if(!formOpen){formOpen=true;$('fbody').style.display='';$('fchev').style.transform='';}
+
+    // Tóm tắt kết quả
+    const parts=[
+      order.name&&`<b>👤</b> ${esc(order.name)}`,
+      order.phone&&`<b>📞</b> ${esc(order.phone)}`,
+      order.size&&`<b>🎂</b> ${esc(order.size)}`,
+      order.cakePrice&&`<b>💰</b> ${order.cakePrice}k`,
+      order.time&&`<b>🕐</b> ${esc(order.time)}`,
+    ].filter(Boolean);
+
+    $('aiResult').innerHTML=`<div class="ai-ok">
+      ✅ <b>AI đã điền xong!</b> ${parts.join(' &nbsp;·&nbsp; ')}<br>
+      <span style="color:var(--cm);font-size:11px">↓ Kiểm tra lại form bên dưới, chỉnh nếu cần rồi bấm <b>Thêm đơn</b>.</span>
+    </div>`;
+
+    $('fcard').scrollIntoView({behavior:'smooth',block:'start'});
+    toast('✓ AI đã phân tích và điền form!');
+
+  }catch(e){
+    $('aiResult').innerHTML=`<div class="ai-err"><i class="ti ti-alert-triangle"></i> ${esc(e.message)}</div>`;
+    toast('Lỗi AI: '+e.message,true);
+  }
+
+  $('aiBtnTxt').textContent='Phân tích & tự điền form';
+  $('aiBtnSub').disabled=false;
+}
+
+$('aiToggle').addEventListener('click',()=>{
+  aiOpen=!aiOpen;
+  $('aiBody').style.display=aiOpen?'':'none';
+  $('aiChev').style.transform=aiOpen?'':'rotate(-90deg)';
+});
+/* ══ END AI PARSE CHAT ══ */
 
 function todayStr(){const d=new Date();return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
 function isPast(ds){return ds<todayStr();}
@@ -749,10 +910,7 @@ function renderDash(results,allCosts,fixedResult){
 }
 
 /* ══ DASHBOARD EXPORT ══ */
-function exportDashPDF(){
-  toast('Đang mở chế độ in / lưu PDF...');
-  setTimeout(()=>window.print(),500);
-}
+function exportDashPDF(){toast('Đang mở chế độ in / lưu PDF...');setTimeout(()=>window.print(),500);}
 
 async function exportDashExcel(){
   if(!dashExportData){toast('Chưa có dữ liệu Dashboard!',true);return;}
@@ -761,23 +919,17 @@ async function exportDashExcel(){
   const xf=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}});
   const xn=(bold,argb,sz=11)=>({name:'Arial',bold,color:{argb},size:sz});
   ws.columns=[{width:28},{width:20},{width:20},{width:20},{width:20},{width:20}];
-
-  // Tiêu đề
   ws.mergeCells('A1:F1');const t=ws.getRow(1).getCell(1);t.value=`Dashboard Toulouse – Tháng ${m}/${y}`;t.font=xn(true,'FFFFFFFF',14);t.fill=xf('FF1F4E78');t.alignment={horizontal:'center',vertical:'middle'};ws.getRow(1).height=30;
-
   const tP=allCosts.reduce((s,c)=>s+n(c.price),0),tA=allCosts.reduce((s,c)=>s+n(c.adCost),0);
   const fR=fixedResult.ok?n(fixedResult.rent):0,fU=fixedResult.ok?n(fixedResult.utilities):0;
   const totalFixed=fR+fU,totalOrders=results.reduce((s,r)=>s+r.orders.length,0);
   const totalRev=results.reduce((s,r)=>s+r.orders.reduce((ss,o)=>ss+n(o.cakePrice)+n(o.accPrice)+n(o.ship),0),0);
   const netProfit=totalRev-tP-tA-totalFixed;
-
-  // Metrics
   const metrics=[['DOANH THU','FF1F4E78'],['Tổng đơn',totalOrders],['Tổng doanh thu',fmt(totalRev)],[' ',''],['CHI PHÍ','FFB85C1A'],['Nhập hàng',fmt(tP)],['Quảng cáo',fmt(tA)],['Cố định (nhà+ĐN)',fmt(totalFixed)],['Tổng chi phí',fmt(tP+tA+totalFixed)],[' ',''],['LỢI NHUẬN RÒNG',fmt(netProfit)]];
   let ri=2;
   metrics.forEach(([lbl,val])=>{
     const row=ws.getRow(ri);row.height=20;
     if(typeof val==='string'&&val===''&&typeof lbl==='string'&&lbl.trim()===''){ri++;return;}
-    const isHeader=typeof val==='string'&&val.match(/^FF/);
     if(lbl==='DOANH THU'||lbl==='CHI PHÍ'||lbl==='LỢI NHUẬN RÒNG'){
       ws.mergeCells(`A${ri}:F${ri}`);const c=row.getCell(1);c.value=lbl;c.font=xn(true,'FFFFFFFF',11);c.fill=xf(lbl==='CHI PHÍ'?'FFB85C1A':lbl==='LỢI NHUẬN RÒNG'?'FF15803D':'FF1F4E78');c.alignment={horizontal:'center'};
     }else{
@@ -786,13 +938,10 @@ async function exportDashExcel(){
     }
     ri++;
   });
-
   ri++;
-  // Daily table header
   const dh=ws.getRow(ri);dh.height=20;['Ngày','Số đơn','Doanh thu','Nhập hàng','Chi phí QC','Lợi nhuận ngày'].forEach((h,i)=>{const c=dh.getCell(i+1);c.value=h;c.font=xn(false,'FFFFFFFF');c.fill=xf('FF4472C4');c.alignment={horizontal:'center'};});ri++;
   const costsByDate=buildCostsByDate(allCosts);
   const dayRows=results.filter(r=>r.orders.length||costsByDate[normDate(r.date)]);
-  const[my,mm]=([y,m]);
   dayRows.forEach(({date,orders})=>{
     const[dy,dmo,dd]=date.split('-');
     const cake=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0),ship=orders.reduce((s,o)=>s+n(o.ship),0),rev=cake+ship;
@@ -801,7 +950,6 @@ async function exportDashExcel(){
     [date,orders.length,rev,dc.price||'–',dc.adCost||'–',profit].forEach((v,i)=>{const c=row.getCell(i+1);c.value=v;c.font=xn(false,i===5?(profit>=0?'FF15803D':'FFC00000'):'FF000000');c.fill=xf('FFFFFFFF');if(i===5)c.font.bold=true;});ri++;
   });
   const tr=ws.getRow(ri);tr.height=22;[`TỔNG THÁNG ${m}/${y}`,'',totalRev,tP,tA,netProfit].forEach((v,i)=>{const c=tr.getCell(i+1);c.value=v;c.font=xn(true,i>=2?'FFC00000':'FF000000',11);c.fill=xf('FFC6E0B4');});
-
   const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`Toulouse_Dashboard_${m}_${y}.xlsx`;a.click();URL.revokeObjectURL(url);
   toast(`✓ Đã xuất Dashboard_${m}_${y}.xlsx`);
 }
@@ -826,7 +974,6 @@ async function loadReport(){
     reportData=allResults[0];
     const costResults=allResults.slice(1,1+yms.length);
     const fixedResults=allResults.slice(1+yms.length);
-    // Lọc chi phí trong khoảng ngày
     reportCosts=(costResults.flatMap(r=>r.costs||[])).filter(c=>{const d=normDate(c.date);return d>=from&&d<=to;});
     reportMonthFixeds={};
     yms.forEach((ym,i)=>{reportMonthFixeds[ym]=fixedResults[i];});
@@ -837,17 +984,13 @@ async function loadReport(){
 
 function renderReport(from,to){
   const costsByDate=buildCostsByDate(reportCosts);
-  // Tổng doanh thu
   let gOrders=0,gCake=0,gShip=0;
   reportData.forEach(({orders})=>{gOrders+=orders.length;gCake+=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0);gShip+=orders.reduce((s,o)=>s+n(o.ship),0);});
   const totalRev=gCake+gShip;
-  // Tổng chi phí
   const tP=reportCosts.reduce((s,c)=>s+n(c.price),0);
   const tA=reportCosts.reduce((s,c)=>s+n(c.adCost),0);
   const totalFixed=Object.values(reportMonthFixeds).reduce((s,f)=>s+(f&&f.ok?n(f.rent)+n(f.utilities):0),0);
   const netProfit=totalRev-tP-tA-totalFixed;
-
-  // Bảng theo ngày
   const dayRows=reportData.filter(r=>r.orders.length||costsByDate[normDate(r.date)]);
   const dayTable=dayRows.map(({date,orders})=>{
     const[y,mo,d]=date.split('-');
@@ -855,8 +998,6 @@ function renderReport(from,to){
     const dc=costsByDate[normDate(date)]||{price:0,adCost:0},profit=rev-(dc.price+dc.adCost);
     return`<tr><td>${d}/${mo}/${y}</td><td>${orders.length}</td><td>${fmt(rev)}</td><td>${dc.price?fmt(dc.price):'–'}</td><td>${dc.adCost?fmt(dc.adCost):'–'}</td><td style="${profit>=0?'color:#15803D':'color:#C00000'};font-weight:600">${fmt(profit)}</td></tr>`;
   }).join('');
-
-  // Chi tiết đơn hàng
   const orderRows=reportData.map(({date,orders})=>{
     if(!orders.length)return'';
     const[y,mo,d]=date.split('-');
@@ -865,15 +1006,12 @@ function renderReport(from,to){
       +orders.map((o,i)=>{const sum=n(o.cakePrice)+n(o.accPrice),tot=sum+n(o.ship);return`<tr><td>${i+1}</td><td>${esc(o.time)}</td><td>${esc(o.size)}</td><td>${fmt(o.cakePrice)}</td><td>${fmt(o.accPrice)}</td><td class="red">${fmt(sum)}</td><td>${fmt(o.ship)}</td><td class="red">${fmt(tot)}</td><td title="${esc(o.name)}">${esc(o.name)}</td></tr>`;}).join('')
       +`<tr class="day-sub-row"><td colspan="5" style="text-align:right">↳ Cộng:</td><td>${fmt(dC)}</td><td>${fmt(dS)}</td><td>${fmt(dC+dS)}</td><td></td></tr>`;
   }).join('');
-
-  // Chi tiết chi phí
   const costRows=reportCosts.length?reportCosts.map((c,i)=>{
     const d=normDate(c.date).split('-');
     return`<tr><td>${i+1}</td><td>${d[2]}/${d[1]}/${d[0]}</td><td>${esc(c.supplier)||'–'}</td><td>${esc(c.product)||'–'}</td><td class="red">${c.price?fmt(c.price):'–'}</td><td>${c.adCost?fmt(c.adCost):'–'}</td><td>${esc(c.note)||'–'}</td></tr>`;
   }).join(''):'<tr><td colspan="7" class="es">Không có chi phí nào</td></tr>';
 
   $('rptResult').innerHTML=`
-  <!-- SUMMARY -->
   <div class="rpt-card">
     <h3><i class="ti ti-chart-pie"></i> Tổng kết ${from} → ${to}</h3>
     <div class="metrics" style="margin-bottom:0">
@@ -885,8 +1023,6 @@ function renderReport(from,to){
       <div class="mc profit-card"><div class="mc-lbl">Lợi nhuận ròng</div><div class="mc-val ${netProfit>=0?'green':'red'}">${fmt(netProfit)}</div></div>
     </div>
   </div>
-
-  <!-- BẢNG THEO NGÀY -->
   <div class="rpt-card">
     <h3><i class="ti ti-calendar"></i> Chi tiết theo ngày</h3>
     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
@@ -898,8 +1034,6 @@ function renderReport(from,to){
     </table></div>
     ${totalFixed>0?`<div style="font-size:11px;color:var(--cm);margin-top:8px;padding:6px 10px;background:#f9fbe7;border-radius:6px">* Chi phí cố định các tháng trong kỳ: <b>${fmt(totalFixed)}</b></div>`:''}
   </div>
-
-  <!-- CHI TIẾT ĐƠN HÀNG -->
   <div class="rpt-card">
     <h3><i class="ti ti-clipboard-list"></i> Chi tiết đơn hàng</h3>
     <div class="tw" style="border:none;box-shadow:none">
@@ -910,8 +1044,6 @@ function renderReport(from,to){
       <tfoot><tr class="grand-row"><td colspan="5" style="text-align:right;font-weight:700">TỔNG</td><td>${fmt(gCake)}</td><td>${fmt(gShip)}</td><td>${fmt(totalRev)}</td><td></td></tr></tfoot>
     </table></div>
   </div>
-
-  <!-- CHI TIẾT CHI PHÍ -->
   <div class="rpt-card">
     <h3><i class="ti ti-coins"></i> Chi tiết chi phí</h3>
     <div class="tw" style="border:none;box-shadow:none">
@@ -932,28 +1064,22 @@ async function exportReportExcel(){
     const wb=new ExcelJS.Workbook();
     const xf=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}});
     const xn=(bold,argb,sz=11)=>({name:'Arial',bold,color:{argb},size:sz});
-
-    // Sheet 1: Tổng hợp
     const ws1=wb.addWorksheet('Tổng hợp');
     ws1.columns=[{width:28},{width:22},{width:22},{width:22},{width:22},{width:22}];
     ws1.mergeCells('A1:F1');const t1h=ws1.getRow(1).getCell(1);t1h.value=`Báo cáo tổng hợp Toulouse – ${from} → ${to}`;t1h.font=xn(true,'FFFFFFFF',13);t1h.fill=xf('FF1F4E78');t1h.alignment={horizontal:'center'};ws1.getRow(1).height=28;
-
     const costsByDate=buildCostsByDate(reportCosts);
     let gOrders2=0,gCake2=0,gShip2=0;
     reportData.forEach(({orders})=>{gOrders2+=orders.length;gCake2+=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0);gShip2+=orders.reduce((s,o)=>s+n(o.ship),0);});
     const totalRev2=gCake2+gShip2,tP2=reportCosts.reduce((s,c)=>s+n(c.price),0),tA2=reportCosts.reduce((s,c)=>s+n(c.adCost),0);
     const totalFixed2=Object.values(reportMonthFixeds).reduce((s,f)=>s+(f&&f.ok?n(f.rent)+n(f.utilities):0),0);
     const netProfit2=totalRev2-tP2-tA2-totalFixed2;
-
     let ri=2;
     [['Tổng đơn',gOrders2],['Tổng doanh thu',totalRev2],['Tổng nhập hàng',tP2],['Chi phí QC',tA2],['Chi phí cố định',totalFixed2],['Tổng chi phí',tP2+tA2+totalFixed2],['Lợi nhuận ròng',netProfit2]].forEach(([lbl,val])=>{
       const row=ws1.getRow(ri);row.height=20;row.getCell(1).value=lbl;row.getCell(1).font=xn(false,'FF333333');
       row.getCell(2).value=typeof val==='number'?val:val;row.getCell(2).font=xn(true,lbl==='Lợi nhuận ròng'?(netProfit2>=0?'FF15803D':'FFC00000'):lbl.includes('phí')?'FFC00000':'FF1a1a0e');
       if(lbl==='Lợi nhuận ròng')row.getCell(2).fill=xf(netProfit2>=0?'FFD1FAE5':'FFFCE8E6');ri++;
     });
-
     ri++;
-    // Bảng theo ngày header
     const dh=ws1.getRow(ri);dh.height=20;['Ngày','Số đơn','Doanh thu','Nhập hàng','Chi phí QC','Lợi nhuận ngày'].forEach((h,i)=>{const c=dh.getCell(i+1);c.value=h;c.font=xn(false,'FFFFFFFF');c.fill=xf('FF4472C4');});ri++;
     reportData.filter(r=>r.orders.length||costsByDate[normDate(r.date)]).forEach(({date,orders})=>{
       const cake=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0),ship=orders.reduce((s,o)=>s+n(o.ship),0),rev=cake+ship;
@@ -961,20 +1087,15 @@ async function exportReportExcel(){
       const row=ws1.getRow(ri);row.height=17;[date,orders.length,rev,dc.price||0,dc.adCost||0,profit].forEach((v,i)=>{const c=row.getCell(i+1);c.value=v;c.font=xn(false,i===5?(profit>=0?'FF15803D':'FFC00000'):'FF000000');c.fill=xf('FFFFFFFF');if(i===5)c.font.bold=true;});ri++;
     });
     const tRow=ws1.getRow(ri);['TỔNG','',totalRev2,tP2,tA2,netProfit2].forEach((v,i)=>{const c=tRow.getCell(i+1);c.value=v;c.font=xn(true,'FFC00000',11);c.fill=xf('FFC6E0B4');});
-
-    // Sheet 2: Chi tiết đơn
     const ws2=wb.addWorksheet('Chi tiết đơn hàng');ws2.columns=[{width:6},{width:12},{width:10},{width:12},{width:13},{width:13},{width:16},{width:13},{width:17},{width:18}];
     ws2.mergeCells('A1:J1');const t2h=ws2.getRow(1).getCell(1);t2h.value=`Chi tiết đơn hàng – ${from} → ${to}`;t2h.font=xn(true,'FFFFFFFF',12);t2h.fill=xf('FF1F4E78');t2h.alignment={horizontal:'center'};ws2.getRow(1).height=24;
     const h2=['STT','Ngày','Giờ','Size','Giá bánh','Giá PK','Tổng bánh+PK','Ship','Tổng cộng','Tên khách'];const r2h=ws2.getRow(2);r2h.height=18;h2.forEach((h,i)=>{const c=r2h.getCell(i+1);c.value=h;c.font=xn(false,'FFFFFFFF');c.fill=xf('FF4472C4');});
     let ri2=3;
     reportData.forEach(({date,orders})=>{if(!orders.length)return;const[y,mo,d]=date.split('-');orders.forEach((o,i)=>{const sum=n(o.cakePrice)+n(o.accPrice),tot=sum+n(o.ship);const row=ws2.getRow(ri2);row.height=16;[i+1,`${d}/${mo}/${y}`,o.time,o.size,n(o.cakePrice),n(o.accPrice),sum,n(o.ship),tot,o.name].forEach((v,ci)=>{const c=row.getCell(ci+1);c.value=v;c.font=xn(false,(ci===6||ci===8)?'FFC00000':'FF000000');c.fill=xf('FFFFFFFF');});ri2++;});});
-
-    // Sheet 3: Chi tiết chi phí
     const ws3=wb.addWorksheet('Chi tiết chi phí');ws3.columns=[{width:6},{width:12},{width:18},{width:22},{width:14},{width:14},{width:22}];
     ws3.mergeCells('A1:G1');const t3h=ws3.getRow(1).getCell(1);t3h.value=`Chi tiết chi phí – ${from} → ${to}`;t3h.font=xn(true,'FFFFFFFF',12);t3h.fill=xf('FFB85C1A');t3h.alignment={horizontal:'center'};ws3.getRow(1).height=24;
     const h3=['STT','Ngày','Đơn vị nhập','Tên sản phẩm','Giá nhập','Chi phí QC','Ghi chú'];const r3h=ws3.getRow(2);r3h.height=18;h3.forEach((h,i)=>{const c=r3h.getCell(i+1);c.value=h;c.font=xn(false,'FFFFFFFF');c.fill=xf('FFB85C1A');});
     reportCosts.forEach((c,i)=>{const d=normDate(c.date).split('-');const row=ws3.getRow(i+3);row.height=16;[i+1,d[2]+'/'+d[1]+'/'+d[0],c.supplier,c.product,n(c.price),n(c.adCost),c.note].forEach((v,ci)=>{const cc=row.getCell(ci+1);cc.value=v;cc.font=xn(false,(ci===4||ci===5)?'FFC00000':'FF000000');cc.fill=xf('FFFFFFFF');});});
-
     const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`Toulouse_BaoCao_${from}_${to}.xlsx`;a.click();URL.revokeObjectURL(url);
     toast('✓ Đã xuất báo cáo tổng hợp (3 sheets)');
   }catch(e){toast('Lỗi: '+e.message,true);}
