@@ -237,7 +237,13 @@ tr.trow:hover td{background:#b8d9a6}
     </div>
     <div id="aiBody">
       <div class="fg" style="margin-bottom:12px">
-        <label>Dán đoạn chat khách hàng vào đây</label>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 4px;">
+          <label style="margin: 0;">Dán đoạn chat khách hàng vào đây</label>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn-ol" onclick="$('aiChat').value=''; $('aiChat').focus();" style="padding:4px 8px; font-size:11px; border-color:var(--bd); display:flex; align-items:center; gap:4px;"><i class="ti ti-eraser" style="color:#C00000"></i> Xóa sạch</button>
+            <button type="button" class="btn-ol" onclick="pasteToChat()" style="padding:4px 8px; font-size:11px; border-color:var(--bd); color:var(--olive-dark); display:flex; align-items:center; gap:4px;"><i class="ti ti-clipboard"></i> Dán đè</button>
+          </div>
+        </div>
         <textarea id="aiChat" style="height:130px;resize:vertical" placeholder="VD:&#10;Chị ơi cho em đặt bánh sinh nhật nhé&#10;Size 16cm kem bơ, giá 450k&#10;Giao lúc 15:30 ạ, ship 35k&#10;Địa chỉ: 45 Nguyễn Trãi, Đống Đa, HN&#10;Tên: Nguyễn Lan Anh – SĐT: 0912 345 678&#10;Viết chữ Happy Birthday Minh lên bánh nhé ạ"></textarea>
       </div>
       <div class="fbtns">
@@ -422,6 +428,21 @@ let reportData=[],reportCosts=[],reportMonthFixeds={},currentTab='orders';
 
 /* ══ AI PARSE CHAT (GEMINI) ══ */
 let aiOpen=true;
+
+async function pasteToChat() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if(text) {
+      $('aiChat').value = text;
+      toast('✓ Đã dán nội dung vào ô chat');
+    } else {
+      toast('Nội dung copy đang trống!', true);
+    }
+  } catch(e) {
+    toast('⚠️ Trình duyệt chặn tự động dán, hãy ấn Ctrl+V', true);
+    $('aiChat').focus();
+  }
+}
 
 async function parseChat(){
   const chat=$('aiChat').value.trim();
