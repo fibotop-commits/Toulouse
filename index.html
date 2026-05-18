@@ -84,8 +84,8 @@ tr.trow:hover td{background:#b8d9a6}
 .chart-card{background:var(--cc);border-radius:var(--rlg);border:.5px solid var(--bd);padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .chart-card h3{font-size:11px;color:#999;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.6px}
 .dash-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.dash-tbl th{background:var(--olive);color:#fff;padding:7px 10px;text-align:left;font-weight:500}
-.dash-tbl td{padding:6px 10px;border-bottom:.5px solid var(--bd)}
+.dash-tbl th{background:var(--olive);color:#fff;padding:7px 10px;text-align:left;font-weight:500;white-space:nowrap}
+.dash-tbl td{padding:6px 10px;border-bottom:.5px solid var(--bd);white-space:nowrap!important;overflow:visible!important;text-overflow:unset!important}
 .dash-tbl tr:hover td{background:#f5f7ed}
 .dash-tbl .total-row td{background:#C6E0B4;color:#C00000;font-weight:600}
 .dash-loading{text-align:center;padding:2.5rem;color:var(--cm);font-size:13px}
@@ -99,7 +99,7 @@ tr.trow:hover td{background:#b8d9a6}
 .grand-row td{background:#C6E0B4;color:#C00000;font-weight:700}
 .dash-section-lbl{font-size:11px;font-weight:700;color:var(--olive-dark);letter-spacing:.8px;text-transform:uppercase;margin:1rem 0 .5rem;display:flex;align-items:center;gap:6px}
 .dash-section-lbl::after{content:'';flex:1;height:1px;background:var(--bd)}
-.img-upload-area{border:1.5px dashed var(--bd2);border-radius:var(--rmd);padding:14px;text-align:center;cursor:pointer;background:var(--cb);transition:all .15s}
+.img-upload-area{border:1.5px dashed var(--bd2);border-radius:var(--rmd);padding:14px;text-align:center;cursor:pointer;background:var(--cb);transition:all .15s;display:block}
 .img-upload-area:hover{background:var(--olive-light);border-color:var(--olive)}
 .img-thumb{max-height:44px;max-width:66px;border-radius:4px;vertical-align:middle;cursor:zoom-in;border:1px solid var(--bd)}
 .img-viewer{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:2000;cursor:zoom-out}
@@ -187,8 +187,8 @@ tr.trow:hover td{background:#b8d9a6}
       <svg id="clockSvg" width="46" height="46" viewBox="0 0 46 46">
         <circle cx="23" cy="23" r="21" fill="white" stroke="#6B7A2E" stroke-width="1.5"/>
         <line id="hHand" x1="23" y1="23" x2="23" y2="11" stroke="#4A5E1C" stroke-width="3" stroke-linecap="round"/>
-        <line id="mHand" x1="23" y1="23" x2="23" y2="6"  stroke="#6B7A2E" stroke-width="2" stroke-linecap="round"/>
-        <line id="sHand" x1="23" y1="27" x2="23" y2="5"  stroke="#C00000" stroke-width="1" stroke-linecap="round"/>
+        <line id="mHand" x1="23" y1="23" x2="23" y2="6" stroke="#6B7A2E" stroke-width="2" stroke-linecap="round"/>
+        <line id="sHand" x1="23" y1="27" x2="23" y2="5" stroke="#C00000" stroke-width="1" stroke-linecap="round"/>
         <circle cx="23" cy="23" r="2.5" fill="#4A5E1C"/>
       </svg>
     </div>
@@ -263,7 +263,6 @@ tr.trow:hover td{background:#b8d9a6}
     <div class="mc cost-card"><div class="mc-lbl">Chi phí QC</div><div class="mc-val red" id="cAd">–</div></div>
     <div class="mc cost-card"><div class="mc-lbl">Tổng chi ngày</div><div class="mc-val red" id="cDayTotal">–</div></div>
   </div>
-
   <div class="fcard" id="costCard">
     <div class="ftitle" id="costtoggle"><i class="ti ti-plus" id="cIcon"></i><span id="cTitle">Thêm chi phí mới</span><i class="ti ti-chevron-down fchev" id="cchev"></i></div>
     <div id="costBody">
@@ -296,7 +295,6 @@ tr.trow:hover td{background:#b8d9a6}
       </div>
     </div>
   </div>
-
   <div class="fcard">
     <div class="ftitle" id="fixedToggle">
       <i class="ti ti-home"></i><span>Chi phí cố định tháng</span>
@@ -316,7 +314,6 @@ tr.trow:hover td{background:#b8d9a6}
       </div>
     </div>
   </div>
-
   <div class="tw">
     <table style="min-width:720px">
       <colgroup><col style="width:40px"><col style="width:105px"><col style="width:155px"><col style="width:100px"><col style="width:100px"><col style="width:80px"><col style="width:130px"><col style="width:56px"></colgroup>
@@ -331,7 +328,7 @@ tr.trow:hover td{background:#b8d9a6}
   <div class="dash-ctrl">
     <div style="display:flex;align-items:center;gap:8px">
       <select id="dashMonthSel" onchange="onDashChange()" style="width:auto;font-size:14px;font-weight:600;color:var(--olive-dark)"></select>
-      <select id="dashYearSel"  onchange="onDashChange()" style="width:auto;font-size:14px;font-weight:600;color:var(--olive-dark)"></select>
+      <select id="dashYearSel" onchange="onDashChange()" style="width:auto;font-size:14px;font-weight:600;color:var(--olive-dark)"></select>
     </div>
     <button class="btn btn-ol" onclick="loadDash()"><i class="ti ti-refresh"></i> Tải lại</button>
   </div>
@@ -390,12 +387,9 @@ let editId=null,currentOrders=[],formOpen=true;
 let editCostId=null,currentCosts=[],costFormOpen=true,fixedBodyOpen=true;
 
 // ── Image state (Google Drive) ──
-let pendingImageData=null;   // base64 data URI – preview only (không lưu localStorage)
-let pendingFileId=null;      // Drive fileId ảnh mới đang chờ lưu
-let pendingClearImage=false; // user muốn xoá ảnh
-let currentEditFileId=null;  // Drive fileId ảnh hiện tại khi đang edit
+let pendingImageData=null,pendingFileId=null,pendingClearImage=false,currentEditFileId=null;
 
-// ── Auth – 2 cấp: admin (sửa/xoá đơn) | boss (chi phí/dashboard/báo cáo/excel) ──
+// ── Auth – 2 cấp ──
 let pwCallback=null,pwLevel=null,authedAdmin=false,authedBoss=false;
 let dashY=new Date().getFullYear(),dashM=new Date().getMonth()+1,dashChart=null;
 let reportData=[],currentTab='orders';
@@ -408,33 +402,21 @@ function genDates(from,to){
   return dates;
 }
 
-// ── Drive image helpers ──
-// Trả về URL thumbnail để hiển thị (nhanh, nhẹ)
-function driveThumb(fId,sz='w200'){
-  return fId?`https://drive.google.com/thumbnail?id=${fId}&sz=${sz}`:null;
-}
-// Trả về URL full để xem / nhúng Excel
-function driveView(fId){
-  return fId?`https://drive.google.com/uc?export=view&id=${fId}`:null;
-}
-// Lấy fileId từ URL Drive (hỗ trợ cả format cũ "drive:FILEID" lẫn URL đầy đủ)
+// ── Drive helpers ──
+function driveThumb(fId,sz='w200'){return fId?`https://drive.google.com/thumbnail?id=${fId}&sz=${sz}`:null;}
+function driveView(fId){return fId?`https://drive.google.com/uc?export=view&id=${fId}`:null;}
+function driveFullUrl(fId){return fId?`https://drive.google.com/file/d/${fId}/view`:null;}
 function getFileId(imageUrl){
   if(!imageUrl)return null;
-  if(imageUrl.startsWith('drive:'))return imageUrl.slice(6); // format cũ
-  const m=imageUrl.match(/\/d\/([^\/\?]+)/);                 // URL đầy đủ
+  if(imageUrl.startsWith('drive:'))return imageUrl.slice(6);
+  const m=imageUrl.match(/\/d\/([^\/\?]+)/);
   return m?m[1]:null;
 }
-// Tạo URL đầy đủ để lưu vào sheet (clickable trong Google Sheet)
-function driveFullUrl(fId){
-  return fId?`https://drive.google.com/file/d/${fId}/view`:null;
-}
 
-// Chuẩn hóa date string về yyyy-MM-dd (fix dashboard bug)
+// ── Date normalize (dashboard fix) ──
 function normDate(s){
-  if(!s)return'';
-  s=String(s).trim();
+  if(!s)return'';s=String(s).trim();
   if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  // Thử parse như Date
   const d=new Date(s);
   if(!isNaN(d.getTime()))return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
   return s;
@@ -442,9 +424,7 @@ function normDate(s){
 
 /* ══ TABS ══ */
 function showTab(t){
-  if(['costs','dashboard','report'].includes(t)&&!authedBoss){
-    requireAuth('boss',()=>showTab(t));return;
-  }
+  if(['costs','dashboard','report'].includes(t)&&!authedBoss){requireAuth('boss',()=>showTab(t));return;}
   currentTab=t;
   ['orders','dashboard','report','costs'].forEach(id=>{$('tab-'+id).style.display=id===t?'':'none';$('tab-'+id+'-btn').classList.toggle('active',id===t);});
   if(t==='dashboard')loadDash();if(t==='report')initReport();if(t==='costs')renderCosts();
@@ -478,8 +458,6 @@ function pwCancel(){$('pwModal').style.display='none';pwCallback=null;}
 /* ══ API ══ */
 async function api(params){const r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params));if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
 async function fetchRange(dates){return Promise.all(dates.map(d=>api({action:'getOrders',date:d}).then(r=>({date:d,orders:r.orders||[]})).catch(()=>({date:d,orders:[]}))));}
-
-// POST dùng cho payload lớn (ảnh base64) – Content-Type: text/plain tránh CORS preflight
 async function apiPost(body){
   const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});
   if(!r.ok)throw new Error('HTTP '+r.status);
@@ -501,61 +479,44 @@ async function compressImage(file){
       const cv=document.createElement('canvas');cv.width=w;cv.height=h;
       cv.getContext('2d').drawImage(img,0,0,w,h);
       resolve(cv.toDataURL('image/jpeg',0.68));
-    };
-    img.src=url;
+    };img.src=url;
   });
 }
-
 async function onImageSelected(input){
   const file=input.files[0];if(!file)return;
   $('cBtnSub').disabled=true;$('cBtnTxt').textContent='Đang tải ảnh lên Drive...';
   try{
-    // Xoá Drive file cũ đang pending (nếu có, chưa lưu)
-    if(pendingFileId){
-      api({action:'deleteImage',fileId:pendingFileId}).catch(()=>{});
-      pendingFileId=null;
-    }
+    if(pendingFileId){api({action:'deleteImage',fileId:pendingFileId}).catch(()=>{});pendingFileId=null;}
     const b64full=await compressImage(file);
-    pendingImageData=b64full; // preview local
+    pendingImageData=b64full;
     const base64=b64full.split(',')[1];
     const ext=b64full.startsWith('data:image/png')?'png':'jpg';
     const r=await apiPost({action:'uploadImage',base64,ext});
     if(!r.ok)throw new Error(r.error||'Upload thất bại');
-    pendingFileId=r.fileId;
-    pendingClearImage=false;
-    $('cImgEl').src=pendingImageData;
-    $('cImgPreview').style.display='';$('cImgDropContent').style.display='none';
+    pendingFileId=r.fileId;pendingClearImage=false;
+    $('cImgEl').src=pendingImageData;$('cImgPreview').style.display='';$('cImgDropContent').style.display='none';
     toast('✓ Đã tải ảnh lên Drive');
-  }catch(e){
-    toast('⚠️ Lỗi tải ảnh: '+e.message,true);
-    pendingImageData=null;pendingFileId=null;
-  }
-  $('cBtnSub').disabled=false;
-  $('cBtnTxt').textContent=editCostId?'Cập nhật':'Thêm chi phí';
+  }catch(e){toast('⚠️ Lỗi tải ảnh: '+e.message,true);pendingImageData=null;pendingFileId=null;}
+  $('cBtnSub').disabled=false;$('cBtnTxt').textContent=editCostId?'Cập nhật':'Thêm chi phí';
 }
-
 function clearCostImage(){
   $('cImageFile').value='';$('cImgEl').src='';
   $('cImgPreview').style.display='none';$('cImgDropContent').style.display='';
   if(pendingFileId){api({action:'deleteImage',fileId:pendingFileId}).catch(()=>{});pendingFileId=null;}
   pendingImageData=null;pendingClearImage=true;
 }
-
 function openImgViewer(src){
   const ov=document.createElement('div');ov.className='img-viewer';
-  ov.innerHTML=`<img src="${src}" onerror="this.src=''">`;
-  ov.onclick=()=>ov.remove();document.body.appendChild(ov);
+  ov.innerHTML=`<img src="${src}" onerror="this.src=''">`;ov.onclick=()=>ov.remove();document.body.appendChild(ov);
 }
 
 /* ══ CALC ══ */
 function calc(){const c=n($('fCake').value)*1000,a=n($('fAcc').value)*1000,s=n($('fShip').value)*1000;$('aSum').textContent=fmt(c+a);$('aTot').textContent=fmt(c+a+s);}
 function calcFixed(){$('fixedTotal').textContent=fmt((n($('fRent').value)+n($('fUtils').value))*1000);}
 
-/* ══ ORDER metrics / lock ══ */
+/* ══ ORDER ══ */
 function updateMetrics(orders){const cake=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0),ship=orders.reduce((s,o)=>s+n(o.ship),0);$('mCount').textContent=orders.length;$('mCake').textContent=fmt(cake);$('mShip').textContent=fmt(ship);$('mTotal').textContent=fmt(cake+ship);}
 function updateFormLock(){const locked=isPast($('selDate').value)&&editId===null;$('pastNotice').style.display=locked?'':'none';$('btnSub').disabled=locked;}
-
-/* ══ RENDER ORDERS ══ */
 async function render(){
   const date=$('selDate').value;
   $('tbody').innerHTML=`<tr><td colspan="14" class="es"><span class="sk"></span>Đang tải...</td></tr>`;$('tfoot').innerHTML='';
@@ -585,7 +546,7 @@ function cancelEdit(){editId=null;setForm({});$('fTitle').textContent='Thêm đ�
 async function delOrder(id){requireAuth('admin',async()=>{if(!confirm('Xóa đơn hàng này?'))return;try{const r=await api({action:'deleteOrder',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);if(editId===id)cancelEdit();await render();toast('Đã xóa đơn.');}catch(e){toast('⚠️ '+e.message,true);}});}
 $('ftoggle').addEventListener('click',()=>{formOpen=!formOpen;$('fbody').style.display=formOpen?'':'none';$('fchev').style.transform=formOpen?'':'rotate(-90deg)';});
 
-/* ══ RENDER COSTS ══ */
+/* ══ COSTS ══ */
 async function renderCosts(){
   const date=$('selDate').value;
   const[y,m]=[date.split('-')[0],date.split('-')[1]];
@@ -601,10 +562,7 @@ async function renderCosts(){
     }else{
       $('costTbody').innerHTML=currentCosts.map((c,i)=>{
         const fId=getFileId(c.imageUrl);
-        // Dùng Drive thumbnail URL – hoạt động từ bất kỳ thiết bị nào
-        const imgCell=fId
-          ?`<img class="img-thumb" src="${driveThumb(fId)}" onclick="openImgViewer('${driveView(fId)}')" onerror="this.style.display='none'" loading="lazy">`
-          :'–';
+        const imgCell=fId?`<img class="img-thumb" src="${driveThumb(fId)}" onclick="openImgViewer('${driveView(fId)}')" onerror="this.style.display='none'" loading="lazy">`:'–';
         return`<tr ${editCostId===c.id?'class="hi"':''}><td>${i+1}</td><td title="${esc(c.supplier)}">${esc(c.supplier)||'–'}</td><td title="${esc(c.product)}">${esc(c.product)||'–'}</td><td class="red">${c.price?fmt(c.price):'–'}</td><td>${c.adCost?fmt(c.adCost):'–'}</td><td class="img-cell">${imgCell}</td><td title="${esc(c.note)}">${esc(c.note)||'–'}</td><td style="display:flex;gap:2px;padding:5px 4px"><button class="abtn e" onclick="startCostEdit('${c.id}')" title="Sửa"><i class="ti ti-pencil"></i></button><button class="abtn d" onclick="delCost('${c.id}')" title="Xóa"><i class="ti ti-trash"></i></button></td></tr>`;
       }).join('');
       $('costTfoot').innerHTML=`<tr class="trow"><td colspan="3" style="text-align:right">TỔNG</td><td>${fmt(tP)}</td><td>${fmt(tA)}</td><td colspan="3"></td></tr>`;
@@ -612,83 +570,55 @@ async function renderCosts(){
   }catch(e){$('costTbody').innerHTML=`<tr><td colspan="8" class="es">⚠️ ${esc(e.message)}</td></tr>`;toast('Lỗi: '+e.message,true);}
   loadFixedCosts();
 }
-
-/* ══ SUBMIT COST ══ */
 async function submitCost(){
-  const date=$('selDate').value;
-  const isEdit=editCostId!==null;
-  // Xác định imageUrl lưu vào sheet
+  const date=$('selDate').value,isEdit=editCostId!==null;
   let imageUrl='';
-  if(pendingFileId){
-    imageUrl=driveFullUrl(pendingFileId);          // ảnh mới – lưu URL đầy đủ
-  }else if(isEdit&&currentEditFileId&&!pendingClearImage){
-    imageUrl=driveFullUrl(currentEditFileId);      // giữ ảnh cũ
-  }
-  const costData={
-    date,supplier:$('cSupplier').value.trim(),product:$('cProduct').value.trim(),
-    price:n($('cPrice').value)*1000,imageUrl,
-    adCost:n($('cAdCost').value)*1000,note:$('cNote').value.trim()
-  };
+  if(pendingFileId)imageUrl=driveFullUrl(pendingFileId);
+  else if(isEdit&&currentEditFileId&&!pendingClearImage)imageUrl=driveFullUrl(currentEditFileId);
+  const costData={date,supplier:$('cSupplier').value.trim(),product:$('cProduct').value.trim(),price:n($('cPrice').value)*1000,imageUrl,adCost:n($('cAdCost').value)*1000,note:$('cNote').value.trim()};
   $('cBtnTxt').textContent=isEdit?'Đang cập nhật...':'Đang thêm...';$('cBtnSub').disabled=true;
   try{
     if(isEdit){
-      // Xoá ảnh Drive cũ nếu user đã xoá
-      if(pendingClearImage&&currentEditFileId)
-        api({action:'deleteImage',fileId:currentEditFileId}).catch(()=>{});
-      await api({action:'updateCost',data:JSON.stringify({id:editCostId,cost:costData})});
-      toast('✓ Đã cập nhật chi phí!');
+      if(pendingClearImage&&currentEditFileId)api({action:'deleteImage',fileId:currentEditFileId}).catch(()=>{});
+      await api({action:'updateCost',data:JSON.stringify({id:editCostId,cost:costData})});toast('✓ Đã cập nhật chi phí!');
     }else{
       const r=await api({action:'addCost',data:JSON.stringify(costData)});
-      if(!r.ok)throw new Error(r.error||'Lỗi thêm chi phí');
-      toast('✓ Đã thêm chi phí!');
+      if(!r.ok)throw new Error(r.error||'Lỗi thêm chi phí');toast('✓ Đã thêm chi phí!');
     }
-    pendingImageData=null;pendingFileId=null;pendingClearImage=false;
-    cancelCostEdit();await renderCosts();
+    pendingImageData=null;pendingFileId=null;pendingClearImage=false;cancelCostEdit();await renderCosts();
   }catch(e){toast('⚠️ '+e.message,true);}
   $('cBtnTxt').textContent=isEdit?'Cập nhật':'Thêm chi phí';$('cBtnSub').disabled=false;
 }
-
 function startCostEdit(id){
   requireAuth('boss',()=>{
     const c=currentCosts.find(x=>x.id===id);if(!c)return;
-    $('cSupplier').value=c.supplier||'';$('cProduct').value=c.product||'';
-    $('cPrice').value=c.price?c.price/1000:'';$('cAdCost').value=c.adCost?c.adCost/1000:'';$('cNote').value=c.note||'';
+    $('cSupplier').value=c.supplier||'';$('cProduct').value=c.product||'';$('cPrice').value=c.price?c.price/1000:'';$('cAdCost').value=c.adCost?c.adCost/1000:'';$('cNote').value=c.note||'';
     editCostId=id;pendingImageData=null;pendingFileId=null;pendingClearImage=false;
     currentEditFileId=getFileId(c.imageUrl);
-    // Hiển thị ảnh từ Drive (hoạt động trên mọi thiết bị)
     const prevUrl=driveThumb(currentEditFileId,'w400');
     if(prevUrl){$('cImgEl').src=prevUrl;$('cImgPreview').style.display='';$('cImgDropContent').style.display='none';}
     else{$('cImgPreview').style.display='none';$('cImgDropContent').style.display='';}
-    $('cTitle').textContent='Sửa chi phí – '+(c.supplier||c.product||'');
-    $('cIcon').className='ti ti-pencil';$('cBtnTxt').textContent='Cập nhật';
+    $('cTitle').textContent='Sửa chi phí – '+(c.supplier||c.product||'');$('cIcon').className='ti ti-pencil';$('cBtnTxt').textContent='Cập nhật';
     $('cBtnCancel').style.display='';$('costCard').classList.add('editing');
     if(!costFormOpen){costFormOpen=true;$('costBody').style.display='';$('cchev').style.transform='';}
     $('costCard').scrollIntoView({behavior:'smooth'});renderCosts();
   });
 }
-
 function cancelCostEdit(){
-  // Xoá Drive file đang pending (chưa lưu) nếu có
   if(pendingFileId){api({action:'deleteImage',fileId:pendingFileId}).catch(()=>{});pendingFileId=null;}
   editCostId=null;currentEditFileId=null;pendingImageData=null;pendingClearImage=false;
   $('cSupplier').value='';$('cProduct').value='';$('cPrice').value='';$('cAdCost').value='';$('cNote').value='';
   $('cImgPreview').style.display='none';$('cImgDropContent').style.display='';$('cImageFile').value='';
-  $('cTitle').textContent='Thêm chi phí mới';$('cIcon').className='ti ti-plus';
-  $('cBtnTxt').textContent='Thêm chi phí';$('cBtnCancel').style.display='none';$('costCard').classList.remove('editing');
+  $('cTitle').textContent='Thêm chi phí mới';$('cIcon').className='ti ti-plus';$('cBtnTxt').textContent='Thêm chi phí';$('cBtnCancel').style.display='none';$('costCard').classList.remove('editing');
 }
-
 async function delCost(id){
   requireAuth('boss',async()=>{
     if(!confirm('Xóa mục chi phí này?'))return;
     const c=currentCosts.find(x=>x.id===id);
     try{
-      const r=await api({action:'deleteCost',id,date:$('selDate').value});
-      if(!r.ok)throw new Error(r.error);
-      // Xoá ảnh Drive kèm theo
-      const fId=getFileId(c?.imageUrl);
-      if(fId)api({action:'deleteImage',fileId:fId}).catch(()=>{});
-      if(editCostId===id)cancelCostEdit();
-      await renderCosts();toast('Đã xóa mục chi phí.');
+      const r=await api({action:'deleteCost',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);
+      const fId=getFileId(c?.imageUrl);if(fId)api({action:'deleteImage',fileId:fId}).catch(()=>{});
+      if(editCostId===id)cancelCostEdit();await renderCosts();toast('Đã xóa mục chi phí.');
     }catch(e){toast('⚠️ '+e.message,true);}
   });
 }
@@ -741,7 +671,7 @@ async function buildExcel(results,titleLabel,filename){
   const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);toast(`✓ Đã xuất ${filename}`);
 }
 
-/* ══ EXPORT COSTS EXCEL (ảnh từ Google Drive) ══ */
+/* ══ EXPORT COSTS EXCEL ══ */
 function onClickCostXlsx(){const t=todayStr();$('cxlsxFrom').value=t;$('cxlsxTo').value=t;$('costXlsxModal').style.display='flex';}
 async function doExportCostRange(){
   const from=$('cxlsxFrom').value,to=$('cxlsxTo').value;
@@ -755,20 +685,15 @@ async function doExportCostRange(){
   }catch(e){toast('Lỗi: '+e.message,true);}
   $('cxlsxBtnTxt').innerHTML='Xuất Excel';$('cxlsxBtn').disabled=false;
 }
-
-// Tải ảnh từ Drive về base64 để nhúng Excel
 async function fetchDriveImgBase64(fileId){
   if(!fileId)return null;
   try{
-    // Dùng uc?export=view – trả về file gốc, hỗ trợ CORS cho file public
-    const url=driveView(fileId);
-    const r=await fetch(url,{mode:'cors'});
+    const r=await fetch(driveView(fileId),{mode:'cors'});
     if(!r.ok)return null;
     const blob=await r.blob();
     return await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(blob);});
   }catch(e){return null;}
 }
-
 async function buildCostExcel(results,titleLabel,filename){
   const hasAny=results.some(r=>r.costs.length);if(!hasAny){toast('Không có chi phí nào!',true);return;}
   const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Chi phí');
@@ -781,49 +706,24 @@ async function buildCostExcel(results,titleLabel,filename){
   const hdrs=['STT','Ngày','Đơn vị nhập','Tên sản phẩm','Giá nhập','Chi phí QC','Ghi chú','Ảnh hoá đơn'];
   const r2=ws.getRow(2);r2.height=20;hdrs.forEach((h,i)=>{const c=r2.getCell(i+1);c.value=h;c.font=xn(false,'FFFFFFFF');c.fill=xf('FFB85C1A');c.alignment=xal();});
   let ri=3,gPrice=0,gAd=0,imgCount=0;
-
   for(const{date,costs}of results){
     if(!costs.length)continue;
     const[y,mo,d]=date.split('-');
     const dP=costs.reduce((s,c)=>s+n(c.price),0),dA=costs.reduce((s,c)=>s+n(c.adCost),0);gPrice+=dP;gAd+=dA;
     ws.mergeCells(`A${ri}:H${ri}`);const dhr=ws.getRow(ri);dhr.height=18;
     const dhc=dhr.getCell(1);dhc.value=`Ngày ${d}/${mo}/${y}  (${costs.length} mục)`;dhc.font=xn(true,'FF4A5E1C',11);dhc.fill=xf('FFE8EDD6');dhc.alignment={horizontal:'left',vertical:'middle'};ri++;
-
     for(let i=0;i<costs.length;i++){
-      const c=costs[i];
-      const fId=getFileId(c.imageUrl);
-      // Thử tải ảnh từ Drive
+      const c=costs[i];const fId=getFileId(c.imageUrl);
       const imgData=await fetchDriveImgBase64(fId);
-      const rr=ws.getRow(ri);
-      rr.height=imgData?90:17;
-      [i+1,`${d}/${mo}/${y}`,c.supplier||'',c.product||'',n(c.price),n(c.adCost),c.note||'',
-       fId?`https://drive.google.com/file/d/${fId}/view`:''].forEach((v,ci)=>{
-        const cc=rr.getCell(ci+1);
-        cc.value=v;
-        cc.font=xn(false,(ci===4||ci===5)?'FFC00000':'FF000000');
-        cc.fill=xf('FFFFFFFF');
-        cc.alignment={vertical:'middle'};
-        // Cột 7 (Ảnh HĐ) – luôn làm hyperlink khi có fileId
-        if(ci===7&&fId){
-          const vUrl=`https://drive.google.com/file/d/${fId}/view`;
-          cc.value={text:'📎 Xem ảnh HĐ',hyperlink:vUrl};
-          cc.font={color:{argb:'FF0563C1'},underline:true,name:'Arial',size:10};
-        }
+      const rr=ws.getRow(ri);rr.height=imgData?90:17;
+      [i+1,`${d}/${mo}/${y}`,c.supplier||'',c.product||'',n(c.price),n(c.adCost),c.note||'',fId?`https://drive.google.com/file/d/${fId}/view`:''].forEach((v,ci)=>{
+        const cc=rr.getCell(ci+1);cc.value=v;cc.font=xn(false,(ci===4||ci===5)?'FFC00000':'FF000000');cc.fill=xf('FFFFFFFF');cc.alignment={vertical:'middle'};
+        if(ci===7&&fId){cc.value={text:'📎 Xem ảnh HĐ',hyperlink:`https://drive.google.com/file/d/${fId}/view`};cc.font={color:{argb:'FF0563C1'},underline:true,name:'Arial',size:10};}
       });
-      // Nhúng ảnh vào Excel nếu tải được
-      if(imgData){
-        try{
-          const base64=imgData.split(',')[1];
-          const ext=imgData.startsWith('data:image/png')?'png':'jpeg';
-          const imgId=wb.addImage({base64,extension:ext});
-          ws.addImage(imgId,`H${ri}:I${ri}`);
-          imgCount++;
-        }catch(err){/* bỏ qua, đã có link */}
-      }
+      if(imgData){try{const base64=imgData.split(',')[1];const ext=imgData.startsWith('data:image/png')?'png':'jpeg';const imgId=wb.addImage({base64,extension:ext});ws.addImage(imgId,`H${ri}:I${ri}`);imgCount++;}catch(err){}}
       ri++;
     }
-    const sr=ws.getRow(ri);sr.height=14;const sv=Array(8).fill('');sv[3]=`Cộng ${d}/${mo}:`;sv[4]=dP;sv[5]=dA;
-    sv.forEach((v,ci)=>{const cc=sr.getCell(ci+1);cc.value=v;cc.font=xn(true,'FFB85C1A',10);cc.fill=xf('FFFFF4EC');if(ci===3)cc.alignment={horizontal:'right'};});ri++;
+    const sr=ws.getRow(ri);sr.height=14;const sv=Array(8).fill('');sv[3]=`Cộng ${d}/${mo}:`;sv[4]=dP;sv[5]=dA;sv.forEach((v,ci)=>{const cc=sr.getCell(ci+1);cc.value=v;cc.font=xn(true,'FFB85C1A',10);cc.fill=xf('FFFFF4EC');if(ci===3)cc.alignment={horizontal:'right'};});ri++;
   }
   const gr=ws.getRow(ri);gr.height=22;const gv=Array(8).fill('');gv[3]='TỔNG';gv[4]=gPrice;gv[5]=gAd;gv.forEach((v,ci)=>{const cc=gr.getCell(ci+1);cc.value=v;cc.font=xn(true,'FFC00000',11);cc.fill=xf('FFC6E0B4');});
   const buf=await wb.xlsx.writeBuffer();const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
@@ -854,61 +754,40 @@ async function loadDash(){
     renderDash(orderResults,costResult.costs||[],fixedResult);
   }catch(e){$('dashLoading').textContent='⚠️ Lỗi: '+e.message;}
 }
-
 function renderDash(results,allCosts,fixedResult){
   let totalOrders=0,totalRev=0,h1Rev=0,h2Rev=0;
   const labels=[],revVals=[],costVals=[];
-
-  // ── Fix: chuẩn hóa date key để tránh format mismatch ──
   const costsByDate={};
   allCosts.forEach(c=>{
-    const dk=normDate(c.date); // yyyy-MM-dd đảm bảo
-    if(!dk)return;
+    const dk=normDate(c.date);if(!dk)return;
     if(!costsByDate[dk])costsByDate[dk]={price:0,adCost:0};
-    costsByDate[dk].price+=n(c.price);
-    costsByDate[dk].adCost+=n(c.adCost);
+    costsByDate[dk].price+=n(c.price);costsByDate[dk].adCost+=n(c.adCost);
   });
-
   results.forEach(({date,orders})=>{
-    const d=parseInt(date.split('-')[2]);
-    const cake=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0);
-    const ship=orders.reduce((s,o)=>s+n(o.ship),0);
-    const rev=cake+ship;
-    const dk=normDate(date);
-    const dc=costsByDate[dk]||{price:0,adCost:0};
+    const d=parseInt(date.split('-')[2]),cake=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0),ship=orders.reduce((s,o)=>s+n(o.ship),0),rev=cake+ship;
+    const dc=costsByDate[normDate(date)]||{price:0,adCost:0};
     totalOrders+=orders.length;totalRev+=rev;
     if(d<=15)h1Rev+=rev;else h2Rev+=rev;
     labels.push(String(d));revVals.push(rev);costVals.push(dc.price+dc.adCost);
   });
-
-  const tP=allCosts.reduce((s,c)=>s+n(c.price),0);
-  const tA=allCosts.reduce((s,c)=>s+n(c.adCost),0);
-  const fR=fixedResult.ok?n(fixedResult.rent):0;
-  const fU=fixedResult.ok?n(fixedResult.utilities):0;
+  const tP=allCosts.reduce((s,c)=>s+n(c.price),0),tA=allCosts.reduce((s,c)=>s+n(c.adCost),0);
+  const fR=fixedResult.ok?n(fixedResult.rent):0,fU=fixedResult.ok?n(fixedResult.utilities):0;
   const totalFixed=fR+fU,totalCost=tP+tA+totalFixed,netProfit=totalRev-totalCost;
-
-  $('dCount').textContent=totalOrders;$('dTotal').textContent=fmt(totalRev);
-  $('dH1').textContent=fmt(h1Rev);$('dH2').textContent=fmt(h2Rev);
-  $('dCostPurchase').textContent=fmt(tP);$('dCostAd').textContent=fmt(tA);
-  $('dCostFixed').textContent=fmt(totalFixed);$('dCostTotal').textContent=fmt(totalCost);
+  $('dCount').textContent=totalOrders;$('dTotal').textContent=fmt(totalRev);$('dH1').textContent=fmt(h1Rev);$('dH2').textContent=fmt(h2Rev);
+  $('dCostPurchase').textContent=fmt(tP);$('dCostAd').textContent=fmt(tA);$('dCostFixed').textContent=fmt(totalFixed);$('dCostTotal').textContent=fmt(totalCost);
   const pEl=$('dProfit');pEl.textContent=fmt(netProfit);pEl.className='mc-val '+(netProfit>=0?'green':'red');
-
   $('dashLoading').style.display='none';$('dashChart').style.display='block';
-  dashChart=new Chart($('dashChart').getContext('2d'),{
-    type:'bar',
-    data:{labels,datasets:[
-      {label:'Doanh thu',data:revVals,backgroundColor:'rgba(107,122,46,.75)',borderColor:'#6B7A2E',borderWidth:1,borderRadius:3},
-      {label:'Chi phí (NH+QC)',data:costVals,backgroundColor:'rgba(230,126,34,.7)',borderColor:'#E67E22',borderWidth:1,borderRadius:3}
-    ]},
-    options:{responsive:true,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Arial',size:11}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>(v/1000000).toFixed(1)+'M',font:{family:'Arial',size:11}},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{font:{family:'Arial',size:11}},grid:{display:false}}}}
-  });
-
-  // Bảng chi tiết theo ngày – chỉ hiển thị ngày có đơn HOẶC có chi phí
+  dashChart=new Chart($('dashChart').getContext('2d'),{type:'bar',data:{labels,datasets:[{label:'Doanh thu',data:revVals,backgroundColor:'rgba(107,122,46,.75)',borderColor:'#6B7A2E',borderWidth:1,borderRadius:3},{label:'Chi phí (NH+QC)',data:costVals,backgroundColor:'rgba(230,126,34,.7)',borderColor:'#E67E22',borderWidth:1,borderRadius:3}]},options:{responsive:true,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Arial',size:11}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},scales:{y:{ticks:{callback:v=>(v/1000000).toFixed(1)+'M',font:{family:'Arial',size:11}},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{font:{family:'Arial',size:11}},grid:{display:false}}}}});
   const dayRows=results.filter(r=>r.orders.length||costsByDate[normDate(r.date)]);
   if(!dayRows.length){$('dashTable').innerHTML='<div class="dash-loading">Không có dữ liệu</div>';return;}
-
-  $('dashTable').innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="dash-tbl" style="min-width:520px;width:100%">
-    <thead><tr><th>Ngày</th><th>Số đơn</th><th>Doanh thu</th><th>Nhập hàng</th><th>Chi phí QC</th><th>Lợi nhuận</th></tr></thead>
+  const cs='style="white-space:nowrap;overflow:visible;text-overflow:unset"';
+  $('dashTable').innerHTML=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+  <table class="dash-tbl" style="table-layout:auto;width:auto;min-width:100%">
+    <thead><tr>
+      <th style="white-space:nowrap">Ngày</th><th style="white-space:nowrap">Số đơn</th>
+      <th style="white-space:nowrap">Doanh thu</th><th style="white-space:nowrap">Nhập hàng</th>
+      <th style="white-space:nowrap">Chi phí QC</th><th style="white-space:nowrap">Lợi nhuận</th>
+    </tr></thead>
     <tbody>
     ${dayRows.map(({date,orders})=>{
       const d=parseInt(date.split('-')[2]);
@@ -918,25 +797,26 @@ function renderDash(results,allCosts,fixedResult){
       const dc=costsByDate[normDate(date)]||{price:0,adCost:0};
       const profit=rev-(dc.price+dc.adCost);
       return`<tr>
-        <td>${pad(d)}/${pad(dashM)}/${dashY}</td>
-        <td>${orders.length}</td>
-        <td>${fmt(rev)}</td>
-        <td>${dc.price?fmt(dc.price):'–'}</td>
-        <td>${dc.adCost?fmt(dc.adCost):'–'}</td>
-        <td style="${profit>=0?'color:#15803D':'color:#C00000'};font-weight:600">${fmt(profit)}</td>
+        <td ${cs}>${pad(d)}/${pad(dashM)}/${dashY}</td>
+        <td ${cs}>${orders.length}</td>
+        <td ${cs}>${fmt(rev)}</td>
+        <td ${cs}>${dc.price?fmt(dc.price):'–'}</td>
+        <td ${cs}>${dc.adCost?fmt(dc.adCost):'–'}</td>
+        <td style="white-space:nowrap;overflow:visible;text-overflow:unset;${profit>=0?'color:#15803D':'color:#C00000'};font-weight:600">${fmt(profit)}</td>
       </tr>`;
     }).join('')}
     <tr class="total-row">
-      <td colspan="2"><b>TỔNG THÁNG</b></td>
-      <td><b>${fmt(totalRev)}</b></td>
-      <td><b>${fmt(tP)}</b></td>
-      <td><b>${fmt(tA)}</b></td>
-      <td style="${netProfit>=0?'color:#15803D':'color:#C00000'};font-weight:700"><b>${fmt(netProfit)}</b></td>
+      <td colspan="2" style="white-space:nowrap;overflow:visible"><b>TỔNG THÁNG</b></td>
+      <td style="white-space:nowrap;overflow:visible"><b>${fmt(totalRev)}</b></td>
+      <td style="white-space:nowrap;overflow:visible"><b>${fmt(tP)}</b></td>
+      <td style="white-space:nowrap;overflow:visible"><b>${fmt(tA)}</b></td>
+      <td style="white-space:nowrap;overflow:visible;${netProfit>=0?'color:#15803D':'color:#C00000'};font-weight:700"><b>${fmt(netProfit)}</b></td>
     </tr>
-    </tbody></table></div>
-    <div style="font-size:11px;color:var(--cm);padding:8px 10px;background:#f9fbe7;border-top:.5px solid var(--bd)">
-      * Chi phí cố định tháng: <b>${fmt(totalFixed)}</b> đã tính vào lợi nhuận ròng.
-    </div>`;
+    </tbody>
+  </table></div>
+  <div style="font-size:11px;color:var(--cm);padding:8px 10px;background:#f9fbe7;border-top:.5px solid var(--bd)">
+    * Chi phí cố định tháng: <b>${fmt(totalFixed)}</b> đã tính vào lợi nhuận ròng.
+  </div>`;
 }
 
 /* ══ BÁO CÁO ══ */
