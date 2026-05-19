@@ -562,6 +562,13 @@ const pad=v=>String(v).padStart(2,'0');
 const daysInMonth=(y,m)=>new Date(y,m,0).getDate();
 const MONTHS=['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
 
+/* ── CACHE LAYER (5 phút TTL) ── */
+const _C=new Map();
+const TTL=5*60*1000;
+const cGet=k=>{const e=_C.get(k);if(!e)return null;if(Date.now()-e.t>TTL){_C.delete(k);return null;}return e.d;};
+const cSet=(k,d)=>_C.set(k,{d,t:Date.now()});
+const cDel=pat=>{_C.forEach((_,k)=>{if(k.includes(pat))_C.delete(k);});};
+
 let editId=null,currentOrders=[],formOpen=true;
 let editCostId=null,currentCosts=[],costFormOpen=true,fixedBodyOpen=true;
 let pendingImageData=null,pendingFileId=null,pendingClearImage=false,currentEditFileId=null;
@@ -647,7 +654,14 @@ function pwConfirm(){
 function pwCancel(){$('pwModal').style.display='none';pwCallback=null;}
 
 async function api(params){const r=await fetch(SCRIPT_URL+'?'+new URLSearchParams(params));if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
-async function fetchRange(dates){return Promise.all(dates.map(d=>api({action:'getOrders',date:d}).then(r=>({date:d,orders:r.orders||[]})).catch(()=>({date:d,orders:[]}))));}
+async function apiC(params){
+  const k=new URLSearchParams(params).toString();
+  const hit=cGet(k);if(hit)return hit;
+  const r=await api(params);
+  if(r.ok!==false)cSet(k,r);
+  return r;
+}
+async function fetchRange(dates){return Promise.all(dates.map(d=>apiC({action:'getOrders',date:d}).then(r=>({date:d,orders:r.orders||[]})).catch(()=>({date:d,orders:[]}))));}
 async function apiPost(body){const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
 
 let toastT;
@@ -686,17 +700,40 @@ function calcFixed(){$('fixedTotal').textContent=fmt((n($('fRent').value)+n($('f
 
 function updateMetrics(orders){const cake=orders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0),ship=orders.reduce((s,o)=>s+n(o.ship),0);$('mCount').textContent=orders.length;$('mCake').textContent=fmt(cake);$('mShip').textContent=fmt(ship);$('mTotal').textContent=fmt(cake+ship);}
 function updateFormLock(){const locked=isPast($('selDate').value)&&editId===null;$('pastNotice').style.display=locked?'':'none';$('btnSub').disabled=locked;}
+
+function renderTable(){
+  if(!currentOrders.length){$('tbody').innerHTML=`<tr><td colspan="14" class="es"><i class="ti ti-clipboard-list" style="font-size:24px;display:block;margin:0 auto 8px"></i>Chưa có đơn nào</td></tr>`;$('tfoot').innerHTML='';return;}
+  $('tbody').innerHTML=currentOrders.map((o,i)=>{const sum=n(o.cakePrice)+n(o.accPrice),tot=sum+n(o.ship);const isTemp=String(o.id).startsWith('_tmp');return`<tr ${editId===o.id?'class="hi"':''} style="${isTemp?'opacity:.55':''}"><td>${i+1}</td><td>${esc(o.time)}</td><td>${esc(o.size)}</td><td>${fmt(o.cakePrice)}</td><td>${fmt(o.accPrice)}</td><td title="${esc(o.acc)}">${esc(o.acc)}</td><td class="red">${fmt(sum)}</td><td>${fmt(o.ship)}</td><td class="red">${fmt(tot)}</td><td title="${esc(o.name)}">${esc(o.name)}</td><td>${esc(o.phone)}</td><td title="${esc(o.addr)}">${esc(o.addr)}</td><td title="${esc(o.note)}">${esc(o.note)}</td><td style="display:flex;gap:2px;padding:5px 4px">${isTemp?'<span class="sk"></span>':(`<button class="abtn e" onclick="startEdit('${o.id}')" title="Sửa"><i class="ti ti-pencil"></i></button><button class="abtn d" onclick="delOrder('${o.id}')" title="Xóa"><i class="ti ti-trash"></i></button>`)}</td></tr>`;}).join('');
+  const tC=currentOrders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0),tS=currentOrders.reduce((s,o)=>s+n(o.ship),0);
+  $('tfoot').innerHTML=`<tr class="trow"><td colspan="6" style="text-align:right">TỔNG</td><td>${fmt(tC)}</td><td>${fmt(tS)}</td><td>${fmt(tC+tS)}</td><td colspan="5"></td></tr>`;
+}
+
 async function render(){
   const date=$('selDate').value;
+  const pKey={action:'getOrders',date};
+
+  // ── Hiện cache ngay lập tức ──
+  const cached=cGet(new URLSearchParams(pKey).toString());
+  if(cached){
+    currentOrders=cached.orders||[];
+    renderTable();updateMetrics(currentOrders);updateFormLock();
+    // Refresh ngầm ở background
+    api(pKey).then(r=>{
+      if(!r.ok)return;
+      cSet(new URLSearchParams(pKey).toString(),r);
+      currentOrders=r.orders||[];
+      renderTable();updateMetrics(currentOrders);
+    }).catch(()=>{});
+    return;
+  }
+
+  // ── Lần đầu: hiện loading ──
   $('tbody').innerHTML=`<tr><td colspan="14" class="es"><span class="sk"></span>Đang tải...</td></tr>`;$('tfoot').innerHTML='';
   try{
-    const r=await api({action:'getOrders',date});if(!r.ok)throw new Error(r.error);
-    currentOrders=r.orders;
-    if(!currentOrders.length){$('tbody').innerHTML=`<tr><td colspan="14" class="es"><i class="ti ti-clipboard-list" style="font-size:24px;display:block;margin:0 auto 8px"></i>Chưa có đơn nào</td></tr>`;updateMetrics([]);updateFormLock();return;}
-    $('tbody').innerHTML=currentOrders.map((o,i)=>{const sum=n(o.cakePrice)+n(o.accPrice),tot=sum+n(o.ship);return`<tr ${editId===o.id?'class="hi"':''}><td>${i+1}</td><td>${esc(o.time)}</td><td>${esc(o.size)}</td><td>${fmt(o.cakePrice)}</td><td>${fmt(o.accPrice)}</td><td title="${esc(o.acc)}">${esc(o.acc)}</td><td class="red">${fmt(sum)}</td><td>${fmt(o.ship)}</td><td class="red">${fmt(tot)}</td><td title="${esc(o.name)}">${esc(o.name)}</td><td>${esc(o.phone)}</td><td title="${esc(o.addr)}">${esc(o.addr)}</td><td title="${esc(o.note)}">${esc(o.note)}</td><td style="display:flex;gap:2px;padding:5px 4px"><button class="abtn e" onclick="startEdit('${o.id}')" title="Sửa"><i class="ti ti-pencil"></i></button><button class="abtn d" onclick="delOrder('${o.id}')" title="Xóa"><i class="ti ti-trash"></i></button></td></tr>`;}).join('');
-    const tC=currentOrders.reduce((s,o)=>s+n(o.cakePrice)+n(o.accPrice),0),tS=currentOrders.reduce((s,o)=>s+n(o.ship),0);
-    $('tfoot').innerHTML=`<tr class="trow"><td colspan="6" style="text-align:right">TỔNG</td><td>${fmt(tC)}</td><td>${fmt(tS)}</td><td>${fmt(tC+tS)}</td><td colspan="5"></td></tr>`;
-    updateMetrics(currentOrders);
+    const r=await api(pKey);if(!r.ok)throw new Error(r.error);
+    cSet(new URLSearchParams(pKey).toString(),r);
+    currentOrders=r.orders||[];
+    renderTable();updateMetrics(currentOrders);
   }catch(e){$('tbody').innerHTML=`<tr><td colspan="14" class="es">⚠️ ${esc(e.message)}</td></tr>`;updateMetrics([]);toast('Lỗi: '+e.message,true);}
   updateFormLock();
 }
@@ -705,32 +742,60 @@ function setForm(o){$('fTime').value=o.time||'';$('fSize').value=o.size||'';$('f
 async function submitOrder(){
   if(isPast($('selDate').value)&&editId===null){toast('Không thể thêm đơn cho ngày đã qua!',true);return;}
   const date=$('selDate').value,o={...getForm(),date};const isEdit=editId!==null;
+
+  // ── Optimistic UI: hiện đơn ngay không chờ server ──
+  let tempId=null;
+  if(!isEdit){
+    tempId='_tmp_'+Date.now();
+    currentOrders=[...currentOrders,{...o,id:tempId}];
+    renderTable();updateMetrics(currentOrders);
+    cancelEdit();
+  }
+
   $('btnSub').disabled=true;$('btnTxt').textContent='Đang lưu...';
-  try{await api(isEdit?{action:'updateOrder',data:JSON.stringify({id:editId,order:o})}:{action:'addOrder',data:JSON.stringify(o)});toast(isEdit?'✓ Đã cập nhật đơn!':'✓ Đã thêm đơn hàng!');cancelEdit();await render();}
-  catch(e){toast('⚠️ '+e.message,true);}
+  try{
+    await api(isEdit?{action:'updateOrder',data:JSON.stringify({id:editId,order:o})}:{action:'addOrder',data:JSON.stringify(o)});
+    toast(isEdit?'✓ Đã cập nhật đơn!':'✓ Đã thêm đơn hàng!');
+    cDel(date); // Xóa cache ngày này
+    if(isEdit)cancelEdit();
+    await render();
+  }catch(e){
+    // Rollback nếu lỗi
+    if(tempId)currentOrders=currentOrders.filter(x=>x.id!==tempId);
+    renderTable();updateMetrics(currentOrders);
+    toast('⚠️ '+e.message,true);
+  }
   $('btnSub').disabled=false;$('btnTxt').textContent=isEdit?'Cập nhật đơn':'Thêm đơn';updateFormLock();
 }
 function startEdit(id){requireAuth('admin',()=>{const o=currentOrders.find(x=>x.id===id);if(!o)return;setForm(o);editId=id;$('fTitle').textContent='Sửa đơn – '+(o.name||'');$('fIcon').className='ti ti-pencil';$('btnTxt').textContent='Cập nhật đơn';$('btnCancel').style.display='';$('fcard').classList.add('editing');$('pastNotice').style.display='none';$('btnSub').disabled=false;if(!formOpen){formOpen=true;$('fbody').style.display='';$('fchev').style.transform='';}$('fcard').scrollIntoView({behavior:'smooth'});render();});}
 function cancelEdit(){editId=null;setForm({});$('fTitle').textContent='Thêm đơn hàng mới';$('fIcon').className='ti ti-plus';$('btnTxt').textContent='Thêm đơn';$('btnCancel').style.display='none';$('fcard').classList.remove('editing');updateFormLock();}
-async function delOrder(id){requireAuth('admin',async()=>{if(!confirm('Xóa đơn hàng này?'))return;try{const r=await api({action:'deleteOrder',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);if(editId===id)cancelEdit();await render();toast('Đã xóa đơn.');}catch(e){toast('⚠️ '+e.message,true);}});}
+async function delOrder(id){requireAuth('admin',async()=>{if(!confirm('Xóa đơn hàng này?'))return;try{const r=await api({action:'deleteOrder',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);cDel($('selDate').value);if(editId===id)cancelEdit();await render();toast('Đã xóa đơn.');}catch(e){toast('⚠️ '+e.message,true);}});}
 $('ftoggle').addEventListener('click',()=>{formOpen=!formOpen;$('fbody').style.display=formOpen?'':'none';$('fchev').style.transform=formOpen?'':'rotate(-90deg)';});
 
 async function renderCosts(){
   const date=$('selDate').value;const[y,m]=[date.split('-')[0],date.split('-')[1]];
   $('fixedMonthBadge').textContent=`Tháng ${parseInt(m)}/${y}`;
+  const pKey={action:'getCosts',date};
+  const cached=cGet(new URLSearchParams(pKey).toString());
+  if(cached){
+    currentCosts=cached.costs||[];_renderCostTable();
+    api(pKey).then(r=>{if(!r.ok)return;cSet(new URLSearchParams(pKey).toString(),r);currentCosts=r.costs||[];_renderCostTable();}).catch(()=>{});
+    loadFixedCosts();return;
+  }
   $('costTbody').innerHTML=`<tr><td colspan="8" class="es"><span class="sk"></span>Đang tải...</td></tr>`;$('costTfoot').innerHTML='';
   try{
-    const r=await api({action:'getCosts',date});if(!r.ok)throw new Error(r.error);
-    currentCosts=r.costs||[];
-    const tP=currentCosts.reduce((s,c)=>s+n(c.price),0),tA=currentCosts.reduce((s,c)=>s+n(c.adCost),0);
-    $('cCount').textContent=currentCosts.length;$('cPurchase').textContent=fmt(tP);$('cAd').textContent=fmt(tA);$('cDayTotal').textContent=fmt(tP+tA);
-    if(!currentCosts.length){$('costTbody').innerHTML=`<tr><td colspan="8" class="es"><i class="ti ti-coins" style="font-size:24px;display:block;margin:0 auto 8px"></i>Chưa có chi phí nào</td></tr>`;}
-    else{
-      $('costTbody').innerHTML=currentCosts.map((c,i)=>{const fId=getFileId(c.imageUrl);const imgCell=fId?`<img class="img-thumb" src="${driveThumb(fId)}" onclick="openImgViewer('${driveView(fId)}')" onerror="this.style.display='none'" loading="lazy">`:'–';return`<tr ${editCostId===c.id?'class="hi"':''}><td>${i+1}</td><td title="${esc(c.supplier)}">${esc(c.supplier)||'–'}</td><td title="${esc(c.product)}">${esc(c.product)||'–'}</td><td class="red">${c.price?fmt(c.price):'–'}</td><td>${c.adCost?fmt(c.adCost):'–'}</td><td class="img-cell">${imgCell}</td><td title="${esc(c.note)}">${esc(c.note)||'–'}</td><td style="display:flex;gap:2px;padding:5px 4px"><button class="abtn e" onclick="startCostEdit('${c.id}')" title="Sửa"><i class="ti ti-pencil"></i></button><button class="abtn d" onclick="delCost('${c.id}')" title="Xóa"><i class="ti ti-trash"></i></button></td></tr>`;}).join('');
-      $('costTfoot').innerHTML=`<tr class="trow"><td colspan="3" style="text-align:right">TỔNG</td><td>${fmt(tP)}</td><td>${fmt(tA)}</td><td colspan="3"></td></tr>`;
-    }
+    const r=await api(pKey);if(!r.ok)throw new Error(r.error);
+    cSet(new URLSearchParams(pKey).toString(),r);
+    currentCosts=r.costs||[];_renderCostTable();
   }catch(e){$('costTbody').innerHTML=`<tr><td colspan="8" class="es">⚠️ ${esc(e.message)}</td></tr>`;toast('Lỗi: '+e.message,true);}
   loadFixedCosts();
+}
+function _renderCostTable(){
+  const tP=currentCosts.reduce((s,c)=>s+n(c.price),0),tA=currentCosts.reduce((s,c)=>s+n(c.adCost),0);
+  $('cCount').textContent=currentCosts.length;$('cPurchase').textContent=fmt(tP);$('cAd').textContent=fmt(tA);$('cDayTotal').textContent=fmt(tP+tA);
+  if(!currentCosts.length){$('costTbody').innerHTML=`<tr><td colspan="8" class="es"><i class="ti ti-coins" style="font-size:24px;display:block;margin:0 auto 8px"></i>Chưa có chi phí nào</td></tr>`;$('costTfoot').innerHTML='';return;}
+  $('costTbody').innerHTML=currentCosts.map((c,i)=>{const fId=getFileId(c.imageUrl);const imgCell=fId?`<img class="img-thumb" src="${driveThumb(fId)}" onclick="openImgViewer('${driveView(fId)}')" onerror="this.style.display='none'" loading="lazy">`:'–';return`<tr ${editCostId===c.id?'class="hi"':''}><td>${i+1}</td><td title="${esc(c.supplier)}">${esc(c.supplier)||'–'}</td><td title="${esc(c.product)}">${esc(c.product)||'–'}</td><td class="red">${c.price?fmt(c.price):'–'}</td><td>${c.adCost?fmt(c.adCost):'–'}</td><td class="img-cell">${imgCell}</td><td title="${esc(c.note)}">${esc(c.note)||'–'}</td><td style="display:flex;gap:2px;padding:5px 4px"><button class="abtn e" onclick="startCostEdit('${c.id}')" title="Sửa"><i class="ti ti-pencil"></i></button><button class="abtn d" onclick="delCost('${c.id}')" title="Xóa"><i class="ti ti-trash"></i></button></td></tr>`;}).join('');
+  $('costTfoot').innerHTML=`<tr class="trow"><td colspan="3" style="text-align:right">TỔNG</td><td>${fmt(tP)}</td><td>${fmt(tA)}</td><td colspan="3"></td></tr>`;
 }
 async function submitCost(){
   const date=$('selDate').value,isEdit=editCostId!==null;
@@ -742,7 +807,9 @@ async function submitCost(){
   try{
     if(isEdit){if(pendingClearImage&&currentEditFileId)api({action:'deleteImage',fileId:currentEditFileId}).catch(()=>{});await api({action:'updateCost',data:JSON.stringify({id:editCostId,cost:costData})});toast('✓ Đã cập nhật chi phí!');}
     else{const r=await api({action:'addCost',data:JSON.stringify(costData)});if(!r.ok)throw new Error(r.error||'Lỗi thêm chi phí');toast('✓ Đã thêm chi phí!');}
-    pendingImageData=null;pendingFileId=null;pendingClearImage=false;cancelCostEdit();await renderCosts();
+    pendingImageData=null;pendingFileId=null;pendingClearImage=false;cancelCostEdit();
+    cDel($('selDate').value); // Xóa cache
+    await renderCosts();
   }catch(e){toast('⚠️ '+e.message,true);}
   $('cBtnTxt').textContent=isEdit?'Cập nhật':'Thêm chi phí';$('cBtnSub').disabled=false;
 }
@@ -770,7 +837,7 @@ async function delCost(id){
   requireAuth('boss',async()=>{
     if(!confirm('Xóa mục chi phí này?'))return;
     const c=currentCosts.find(x=>x.id===id);
-    try{const r=await api({action:'deleteCost',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);const fId=getFileId(c?.imageUrl);if(fId)api({action:'deleteImage',fileId:fId}).catch(()=>{});if(editCostId===id)cancelCostEdit();await renderCosts();toast('Đã xóa mục chi phí.');}
+    try{const r=await api({action:'deleteCost',id,date:$('selDate').value});if(!r.ok)throw new Error(r.error);const fId=getFileId(c?.imageUrl);if(fId)api({action:'deleteImage',fileId:fId}).catch(()=>{});if(editCostId===id)cancelCostEdit();cDel($('selDate').value);await renderCosts();toast('Đã xóa mục chi phí.');}
     catch(e){toast('⚠️ '+e.message,true);}
   });
 }
