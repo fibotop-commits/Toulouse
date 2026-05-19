@@ -268,7 +268,12 @@ tr.trow:hover td{background:#E8D6A0}
 .chat-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.3px}
 .chat-av.ai{background:var(--dark2);color:var(--gold-light)}
 .chat-av.user{background:var(--gold);color:#fff}
-.chat-bubble{max-width:80%;padding:10px 14px;font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.chat-bubble{max-width:80%;padding:10px 14px;font-size:13px;line-height:1.7;word-break:break-word;white-space:normal}
+.chat-bubble br{display:block;content:'';margin-top:2px}
+.chat-bubble b{font-weight:700;color:inherit}
+.chat-bubble hr.md-hr{border:none;border-top:.5px solid rgba(0,0,0,.13);margin:8px 0}
+.chat-bubble .md-li{display:flex;gap:6px;margin:2px 0}
+.chat-bubble .md-li span:first-child{flex-shrink:0;opacity:.7}
 .chat-msg.ai .chat-bubble{background:var(--cc);border:.5px solid var(--bd);color:var(--ct);border-radius:14px 14px 14px 3px;box-shadow:var(--sh)}
 .chat-msg.user .chat-bubble{background:var(--dark2);color:var(--gold-light);border-radius:14px 14px 3px 14px}
 .chat-chips{padding:9px 14px;border-top:.5px solid var(--bd);border-bottom:.5px solid var(--bd);display:flex;gap:6px;flex-wrap:wrap;background:var(--gold-pale)}
@@ -629,7 +634,7 @@ Bạn đang gặp tình huống nào cần hỗ trợ?</div>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxVxm1MzoDMn1dSuWny8xgQ13ze16JuU5xuDV-0fu5B5b7P1wwvT7J2TvqVrlhhhzq0Jw/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxkqnoOPZqTz3GrGdYJnp0Q7-74xibdrT1C8BxHng6kjR2F7ws1kgoy3CHrEPVUMbQmEw/exec';
 const $=id=>document.getElementById(id);
 const n=v=>Number(v||0);
 const fmt=v=>n(v).toLocaleString('vi-VN')+'đ';
@@ -1268,7 +1273,32 @@ Phong cách: chuyên nghiệp nhưng gần gũi, đưa ví dụ cụ thể, có 
 let cskhHistory=[];
 let cskhBusy=false;
 
-function appendMsg(role,text){
+function mdToHtml(raw) {
+  var lines = raw.split('\n'), out = [];
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i];
+    // Escape HTML
+    l = l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    // Heading ### / ## / #
+    l = l.replace(/^#{1,3} (.+)$/, '<b>$1</b>');
+    // HR
+    if (/^---+$/.test(l.trim())) { out.push('<hr class="md-hr">'); continue; }
+    // Bold **text**
+    l = l.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    // Italic *text*
+    l = l.replace(/\*([^*]+?)\*/g, '<i>$1</i>');
+    // Bullet - / • / *
+    var bullet = l.match(/^[\s]*[-•\*] (.+)$/);
+    if (bullet) { out.push('<div class="md-li"><span>•</span><span>'+bullet[1]+'</span></div>'); continue; }
+    // Numbered list
+    var num = l.match(/^(\d+)\. (.+)$/);
+    if (num) { out.push('<div class="md-li"><span>'+num[1]+'.</span><span>'+num[2]+'</span></div>'); continue; }
+    out.push(l);
+  }
+  return out.join('<br>').replace(/(<br>){3,}/g,'<br><br>');
+}
+
+function appendMsg(role, text) {
   const box=$('cskhMsgs');
   const isAI=role==='ai';
   const div=document.createElement('div');
